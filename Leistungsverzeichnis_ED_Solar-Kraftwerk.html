@@ -1,0 +1,1240 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk</title>
+<style>
+  :root{
+    --anthrazit:#666666;
+    --petrol:#00848A;
+    --petrol-dark:#00666b;
+    --petrol-tint:#e6f2f2;
+    --hellgrau:#D8D8D8;
+    --signalorange:#E8622C;
+    --weiss:#FFFFFF;
+    --ink:#2b2f30;
+    --paper:#f4f5f4;
+    --card:#ffffff;
+    --border:#dcdedc;
+    --border-strong:#c7cac7;
+    --muted:#8a8f8d;
+    --danger:#c0392b;
+    --font-ui:Aptos,"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+    --font-mono:"IBM Plex Mono","Cascadia Code",Consolas,"SFMono-Regular",Menlo,monospace;
+    --radius:8px;
+    --shadow:0 1px 2px rgba(20,30,30,.06), 0 1px 8px rgba(20,30,30,.05);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --paper:#1a1d1d; --card:#232727; --border:#383d3c; --border-strong:#484e4c;
+      --ink:#eceeed; --anthrazit:#b7bcba; --hellgrau:#2e3332; --muted:#8d9391;
+      --petrol:#2bb3ba; --petrol-dark:#1f8f95; --petrol-tint:#132d2e; --weiss:#FFFFFF;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#1a1d1d; --card:#232727; --border:#383d3c; --border-strong:#484e4c;
+    --ink:#eceeed; --anthrazit:#b7bcba; --hellgrau:#2e3332; --muted:#8d9391;
+    --petrol:#2bb3ba; --petrol-dark:#1f8f95; --petrol-tint:#132d2e; --weiss:#FFFFFF;
+  }
+  :root[data-theme="light"]{
+    --paper:#f4f5f4; --card:#ffffff; --border:#dcdedc; --border-strong:#c7cac7;
+    --ink:#2b2f30; --anthrazit:#666666; --hellgrau:#D8D8D8; --muted:#8a8f8d;
+    --petrol:#00848A; --petrol-dark:#00666b; --petrol-tint:#e6f2f2; --weiss:#FFFFFF;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-ui);
+    font-size:14.5px;
+    line-height:1.45;
+    padding-bottom:64px;
+  }
+  h1,h2,h3{font-weight:600;text-wrap:balance;margin:0;}
+  .mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+  button{font-family:inherit;cursor:pointer;}
+  input,textarea,select{font-family:inherit;color:inherit;}
+  a{color:var(--petrol);}
+
+  /* ---------- Toolbar ---------- */
+  .toolbar{
+    position:sticky;top:0;z-index:30;
+    background:var(--petrol);
+    color:var(--weiss);
+    box-shadow:var(--shadow);
+  }
+  .toolbar-inner{
+    max-width:1180px;margin:0 auto;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    padding:12px 20px;
+  }
+  .toolbar-title{
+    font-size:17px;font-weight:600;margin-right:auto;white-space:nowrap;
+    letter-spacing:.2px;
+  }
+  .toolbar-title small{display:block;font-size:11.5px;font-weight:400;opacity:.85;letter-spacing:.02em;}
+  .tbtn{
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.35);
+    color:var(--weiss);
+    padding:7px 13px;border-radius:6px;font-size:13px;font-weight:600;
+    display:inline-flex;align-items:center;gap:6px;white-space:nowrap;
+    transition:background .12s ease;
+  }
+  .tbtn:hover{background:rgba(255,255,255,.24);}
+  .tbtn:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--signalorange);outline-offset:1px;
+  }
+  .tbtn.warn{border-color:rgba(255,255,255,.5);}
+  #saveStatus{font-size:11.5px;opacity:0;transition:opacity .3s ease;white-space:nowrap;}
+  #saveStatus.show{opacity:.9;}
+
+  /* ---------- Layout ---------- */
+  .page{max-width:1180px;margin:0 auto;padding:22px 20px 40px;}
+
+  .meta-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);padding:18px 20px;margin-bottom:22px;
+  }
+  .meta-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px 18px;
+  }
+  .field label{
+    display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);margin-bottom:4px;font-weight:600;
+  }
+  .field input[type=text], .field input[type=date], .field select{
+    width:100%;border:1px solid var(--border-strong);border-radius:6px;
+    padding:8px 10px;background:var(--paper);color:var(--ink);font-size:14.5px;
+    font-family:inherit;
+  }
+  .field select{cursor:pointer;}
+  .field input[type=text]:focus, .field input[type=date]:focus, .field select:focus{border-color:var(--petrol);background:var(--card);outline:none;}
+
+  .helptext{font-size:12px;color:var(--muted);margin-top:12px;}
+
+  /* ---------- Title blocks ---------- */
+  #titlesContainer{display:flex;flex-direction:column;gap:18px;}
+  .title-block{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);overflow:hidden;
+  }
+  .title-head{
+    display:flex;align-items:center;gap:10px;
+    background:var(--petrol);color:var(--weiss);
+    padding:10px 14px;
+  }
+  .title-badge{
+    background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.4);
+    padding:3px 9px;border-radius:5px;font-size:12.5px;font-weight:600;flex-shrink:0;
+  }
+  .title-input{
+    flex:1;background:transparent;border:1px solid transparent;border-radius:5px;
+    color:var(--weiss);font-size:15.5px;font-weight:600;padding:6px 8px;min-width:120px;
+  }
+  .title-input::placeholder{color:rgba(255,255,255,.7);}
+  .title-input:hover{border-color:rgba(255,255,255,.35);}
+  .title-input:focus{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.6);}
+  .del-title-btn{
+    flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,.4);
+    color:var(--weiss);padding:6px 10px;border-radius:6px;font-size:12px;font-weight:600;
+  }
+  .del-title-btn:hover{background:var(--signalorange);border-color:var(--signalorange);}
+
+  .preamble-input{
+    display:block;width:100%;border:none;border-bottom:1px solid var(--border);
+    background:var(--petrol-tint);color:var(--ink);padding:9px 14px;font-size:13px;
+    resize:none;min-height:34px;field-sizing:content;
+  }
+  .preamble-input::placeholder{color:var(--muted);}
+  .preamble-input:focus{background:var(--card);outline:none;box-shadow:inset 0 -2px 0 var(--petrol);}
+
+  .table-scroll{overflow-x:auto;}
+  table.pos-table{width:100%;border-collapse:collapse;min-width:760px;}
+  .pos-table thead th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);background:var(--hellgrau);padding:8px 10px;font-weight:600;
+    border-bottom:1px solid var(--border-strong);white-space:nowrap;
+  }
+  .pos-table thead th.col-price, .pos-table thead th.col-total{text-align:right;}
+  .pos-table td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
+  .pos-table td.col-check{padding-top:9px;}
+  .pos-table td.col-price, .pos-table td.col-total{vertical-align:bottom;}
+  .pos-table tbody tr:hover{background:var(--petrol-tint);}
+  .pos-table tbody tr.inactive{opacity:.5;}
+  .pos-table tbody tr.inactive .col-qty input{cursor:not-allowed;}
+
+  .col-check{width:34px;text-align:center;}
+  .col-posnr{width:66px;font-size:13px;color:var(--anthrazit);}
+  .col-art{width:64px;}
+  .col-qty{width:92px;}
+  .col-unit{width:78px;}
+  .col-text{min-width:280px;}
+  .col-price{width:118px;}
+  .col-total{width:120px;font-size:13.5px;text-align:right;}
+  .col-del{width:38px;text-align:center;}
+
+  .pos-table input[type=checkbox]{width:16px;height:16px;accent-color:var(--petrol);cursor:pointer;}
+
+  .cell-input, .col-art select, .col-qty input, .col-unit input, .col-price input{
+    width:100%;border:1px solid transparent;border-radius:5px;background:transparent;
+    padding:5px 7px;font-size:13.5px;color:var(--ink);
+  }
+  .col-art select{cursor:pointer;}
+  .col-qty input, .col-price input{text-align:right;}
+  .cell-input:hover, .col-art select:hover, .col-qty input:hover, .col-unit input:hover, .col-price input:hover,
+  textarea.text-input:hover{border-color:var(--border-strong);}
+  .cell-input:focus, .col-art select:focus, .col-qty input:focus, .col-unit input:focus, .col-price input:focus,
+  textarea.text-input:focus{border-color:var(--petrol);background:var(--card);outline:none;}
+
+  textarea.text-input{
+    width:100%;border:1px solid transparent;border-radius:5px;background:transparent;
+    padding:5px 7px;font-size:13.5px;color:var(--ink);resize:none;min-height:30px;
+    field-sizing:content;line-height:1.35;
+  }
+
+  .kurztext-row{display:flex;align-items:flex-start;gap:5ch;}
+  .kurztext-row textarea.text-input{flex:1;}
+  .details-toggle{
+    flex:none;width:24px;height:24px;margin-top:3px;border:1px solid transparent;border-radius:5px;
+    background:transparent;color:var(--anthrazit);font-size:11px;cursor:pointer;line-height:1;
+  }
+  .details-toggle:hover{background:var(--petrol-tint);}
+  .details-toggle.has-details{color:var(--petrol);font-weight:700;}
+  .kurztext-head-row{display:flex;align-items:center;gap:5ch;}
+  .kurztext-head-row span:first-child{flex:1;}
+  .details-info-icon{
+    flex:none;width:24px;height:24px;border-radius:50%;background:var(--petrol);color:#fff;
+    font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:help;
+  }
+  textarea.details-input{
+    width:100%;border:1px solid var(--border);border-radius:5px;background:var(--petrol-tint);
+    padding:5px 7px;font-size:12.5px;color:var(--ink);resize:vertical;min-height:44px;
+    line-height:1.35;margin-top:4px;
+  }
+
+  .icon-btn{
+    width:26px;height:26px;border-radius:6px;border:1px solid var(--border-strong);
+    background:var(--card);color:var(--anthrazit);font-size:13px;line-height:1;
+    display:inline-flex;align-items:center;justify-content:center;
+  }
+  .icon-btn:hover{background:var(--danger);border-color:var(--danger);color:var(--weiss);}
+
+  tfoot .title-sum-row td{
+    border-bottom:none;border-top:1px solid var(--border-strong);
+    padding:9px 10px;font-size:13.5px;
+  }
+  tfoot .title-sum-row td.titlesum-label{text-transform:uppercase;font-size:11px;letter-spacing:.05em;}
+  tfoot .title-sum-row td[data-role="titlesum"]{text-align:right;font-size:14.5px;}
+
+  .subtotal-row td{background:var(--petrol-tint);font-weight:600;}
+  .subtotal-label-input{font-weight:600;}
+
+  .add-pos-btn{
+    display:block;width:100%;text-align:left;background:var(--card);border:none;
+    border-top:1px dashed var(--border-strong);color:var(--petrol-dark);font-weight:600;
+    font-size:13px;padding:10px 14px;
+  }
+  .add-pos-btn:hover{background:var(--petrol-tint);}
+
+  /* ---------- Add title button ---------- */
+  .add-title-row{display:flex;justify-content:center;margin-top:4px;}
+  .add-title-btn{
+    background:var(--card);border:1.5px dashed var(--border-strong);color:var(--petrol-dark);
+    padding:11px 22px;border-radius:var(--radius);font-weight:600;font-size:13.5px;width:100%;
+  }
+  .add-title-btn:hover{border-color:var(--petrol);background:var(--petrol-tint);}
+
+  /* ---------- Summary ---------- */
+  .summary-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-top:26px;overflow:hidden;
+  }
+  .summary-head{background:var(--ink);color:var(--weiss);padding:12px 18px;}
+  :root[data-theme="dark"] .summary-head, @media (prefers-color-scheme:dark){ .summary-head{background:#000;} }
+  .summary-head h2{font-size:15px;letter-spacing:.02em;}
+  table.summary-table{width:100%;border-collapse:collapse;}
+  .summary-table th{
+    text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em;
+    color:var(--muted);padding:9px 18px;border-bottom:1px solid var(--border-strong);
+  }
+  .summary-table td{padding:8px 18px;border-bottom:1px solid var(--border);font-size:13.5px;}
+  .summary-table tr:last-child td{border-bottom:none;}
+  .summary-table td:first-child{width:70px;color:var(--muted);}
+  .summary-table td:last-child{width:150px;text-align:right;}
+
+  /* ---------- Legende ---------- */
+  .legend-card{
+    background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-top:22px;overflow:hidden;
+  }
+  .legend-body{padding:16px 18px 20px;font-size:13.5px;line-height:1.6;}
+  .legend-body p{margin:0 0 6px;}
+  .legend-body ul{margin:0 0 10px;padding-left:20px;}
+  .legend-body li{margin-bottom:2px;}
+
+  .totals{padding:16px 18px 20px;border-top:1px solid var(--border-strong);}
+  .totals-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;font-size:14px;}
+  .totals-row .vat-input{
+    width:44px;border:1px solid var(--border-strong);border-radius:5px;background:var(--paper);
+    color:var(--ink);text-align:right;padding:2px 5px;font-size:13px;margin:0 3px;
+  }
+  .totals-row.grand{
+    border-top:1px solid var(--border-strong);margin-top:6px;padding-top:12px;
+    font-size:19px;
+  }
+  .totals-row.new-netto{border-top:1px solid var(--border-strong);margin-top:2px;padding-top:10px;}
+  .discount-note{font-size:12px;color:var(--muted);padding:8px 0 2px;line-height:1.4;}
+
+  /* ---------- Sticky totals bar ---------- */
+  .totals-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:25;
+    background:var(--ink);color:var(--weiss);
+    display:flex;justify-content:center;gap:26px;flex-wrap:wrap;
+    padding:9px 18px;font-size:12.5px;box-shadow:0 -2px 10px rgba(0,0,0,.15);
+  }
+  .totals-bar b{font-family:var(--font-mono);font-weight:normal;margin-left:5px;font-variant-numeric:tabular-nums;}
+  .totals-bar .tb-count{color:var(--muted);}
+
+  #importFileInput{display:none;}
+
+  /* ---------- Print ---------- */
+  @page{size:A4 portrait;margin:0;}
+  @media print{
+    body{padding-bottom:0;background:#fff;font-size:10px;margin:16mm 10mm 16mm 20mm;width:180mm;}
+    .toolbar, .totals-bar, .add-pos-btn, .add-title-row, .col-check, .col-del,
+    .del-title-btn, #saveStatus{display:none !important;}
+    .page{padding:0;margin:0;max-width:100%;width:100%;}
+    .meta-card, .title-block, .summary-card, .legend-card{box-shadow:none;border:1px solid #ccc;break-inside:avoid;}
+    .title-head{background:#eee !important;color:#000 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    .title-input{color:#000 !important;}
+    .preamble-input{background:#f4f4f4 !important;-webkit-print-color-adjust:exact;}
+    input, textarea, select{border:none !important;background:transparent !important;color:#000 !important;appearance:none;-webkit-appearance:none;}
+    .print-date{display:inline !important;}
+    a{color:inherit;text-decoration:none;}
+
+    .table-scroll{overflow:visible;}
+    table.pos-table{width:100%;min-width:0;table-layout:fixed;}
+    .pos-table th, .pos-table td{padding:3px 4px;font-size:9px;}
+    .pos-table thead th{font-size:7.5px;padding:3px 4px;}
+    .pos-table tfoot .title-sum-row td{padding:3px 4px;font-size:9px;}
+    .pos-table tfoot .title-sum-row td.titlesum-label{font-size:8px;}
+    .pos-table tfoot .title-sum-row td[data-role="titlesum"]{font-size:9.5px;}
+    .col-posnr{width:10mm;}
+    .col-art{width:10mm;}
+    .col-qty{width:14mm;}
+    .col-unit{width:12mm;}
+    .col-text{width:auto;min-width:0;}
+    .col-price{width:22mm;}
+    .col-total{width:22mm;}
+    .cell-input, .col-art select, .col-qty input, .col-unit input, .col-price input, textarea.text-input{
+      font-size:9px;padding:2px 3px;
+    }
+  }
+  .print-date{display:none;}
+</style>
+</head>
+<body>
+
+<header class="toolbar">
+  <div class="toolbar-inner">
+    <div class="toolbar-title">
+      ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk
+      <small>Erfassung von Titeln, Positionen &amp; Preisen für Bauleistungen</small>
+    </div>
+    <span id="saveStatus">Gespeichert</span>
+    <button type="button" class="tbtn" id="addTitleBtn">＋ Titel</button>
+    <button type="button" class="tbtn" id="printBtn">Drucken / PDF</button>
+    <button type="button" class="tbtn" id="exportBtn">Speichern (JSON)</button>
+    <button type="button" class="tbtn" id="importBtn">Laden (JSON)</button>
+    <button type="button" class="tbtn warn" id="resetBtn">Zurücksetzen</button>
+    <input type="file" id="importFileInput" accept="application/json">
+  </div>
+</header>
+
+<div class="page">
+
+  <section class="meta-card" id="metaPanel">
+    <div class="meta-grid">
+      <div class="field">
+        <label for="m_name">Vorname Name</label>
+        <input type="text" id="m_name" data-meta-field="name" placeholder="z. B. Max Mustermann">
+      </div>
+      <div class="field">
+        <label for="m_addr">Straße Hausnummer</label>
+        <input type="text" id="m_addr" data-meta-field="address" placeholder="z. B. Musterweg 12">
+      </div>
+      <div class="field">
+        <label for="m_city">PLZ Ort</label>
+        <input type="text" id="m_city" data-meta-field="cityZip" placeholder="z. B. 12345 Musterstadt">
+      </div>
+      <div class="field">
+        <label for="m_date">Datum der Erstellung</label>
+        <input type="date" id="m_date" data-meta-field="date">
+      </div>
+      <div class="field">
+        <label for="m_project">PV-Anlagenart</label>
+        <select id="m_project" data-meta-field="project">
+          <option value="">Bitte wählen…</option>
+          <option value="PV-Anlage Flachdach">PV-Anlage Flachdach</option>
+          <option value="Gebäudeunabhängige PV-Freiflächenanlagen">Gebäudeunabhängige PV-Freiflächenanlagen</option>
+        </select>
+      </div>
+    </div>
+    <div class="helptext">Änderungen werden automatisch lokal im Browser gespeichert. Für eine dauerhafte Sicherung oder Weitergabe „Speichern (JSON)“ nutzen. <span class="print-date"></span></div>
+  </section>
+
+  <main id="titlesContainer"></main>
+
+  <div class="add-title-row">
+    <button type="button" class="add-title-btn" id="addTitleBtn2">＋ Neuen Titel hinzufügen</button>
+  </div>
+
+  <section class="summary-card">
+    <div class="summary-head"><h2>Zusammenstellung der Titelsummen</h2></div>
+    <table class="summary-table">
+      <thead><tr><th>Titel</th><th>Bezeichnung</th><th>Titelsumme</th></tr></thead>
+      <tbody id="summaryBody"></tbody>
+    </table>
+    <div class="totals">
+      <div class="totals-row"><span>Nettosumme</span><span class="mono" id="nettoDisplay">0,00</span></div>
+      <div class="discount-note">Bei Vergabe innerhalb von 10 Tagen nach dem Datum der Erstellung gewähren wir einen Nachlass von ca. 5% auf die Nettoangebotssumme (Bruttobetrag auf volle 10 gerundet).</div>
+      <div class="totals-row discount"><span>Nachlass (ca. 5%)</span><span class="mono" id="discountDisplay">-0,00</span></div>
+      <div class="totals-row new-netto"><span>Neuer Nettobetrag</span><span class="mono" id="newNettoDisplay">0,00</span></div>
+      <div class="totals-row"><span>zzgl. <input type="text" inputmode="decimal" id="vatRateInput" class="mono vat-input" value="19">% Mehrwertsteuer</span><span class="mono" id="vatDisplay">0,00</span></div>
+      <div class="totals-row grand"><span>Bruttosumme</span><span class="mono" id="bruttoDisplay">0,00</span></div>
+    </div>
+  </section>
+
+  <section class="legend-card">
+    <div class="summary-head"><h2>Legende</h2></div>
+    <div class="legend-body">
+      <p><strong>Erklärungen</strong></p>
+      <p>Art steht für</p>
+      <p><strong>N</strong> = Normalposition: Das ist die klassische Standardleistung. Sie hat eine bestimmte Menge, eine Maßeinheit und einen Einheitspreis. Sie wird regulär ausgeführt und fließt direkt in die Gesamtsumme ein und wird im LV nicht gesondert gekennzeichnet</p>
+      <p><strong>G</strong> = Grundposition: Eine normale Position, für die im Leistungsverzeichnis direkt eine alternative Ausführungsart zur Auswahl gestellt wird (siehe Alternativposition).</p>
+      <p><strong>A</strong> = Alternativposition (Wahlposition): Diese Position wird als Variante zur Grundposition angeboten (z. B. Fliesen statt Teppich). Ihr Preis wird bei der Angebotsabgabe nicht in die Gesamtsumme eingerechnet. Erst wenn der Auftraggeber sich für die Alternative entscheidet, ersetzt ihr Preis den der Grundposition. (NEP): Fließt bei der Angebotswertung nicht in die Endsumme ein.</p>
+      <p><strong>B</strong> = Bedarfsposition: Diese Leistung wird nur ausgeführt, wenn sie während der Bauphase tatsächlich gebraucht und vom Auftraggeber explizit angeordnet wird. Ohne Gesamtbetrag (NEP): Fließt bei der Angebotswertung nicht in die Endsumme ein.</p>
+      <p><strong>E</strong> = Eventualposition: Mit Gesamtbetrag (mit GB): Fließt bei der Angebotswertung in die Angebotssumme ein, um Bieter besser vergleichen zu können</p>
+      <p><strong>Z</strong> = Zulageposition: Eine Position, die nur in Verbindung mit einer anderen Hauptposition existiert. Sie vergütet einen spezifischen Mehraufwand oder eine Erschwernis (z. B. „Zulage für den Aushub von felsigem Boden").</p>
+      <p><strong>T</strong> = Textposition / Hinweistext: Diese enthalten keine Preise oder Mengen, sondern dienen rein der Information. Das können technische Vorbemerkungen oder Erläuterungen zu den nachfolgenden Positionen sein.</p>
+      <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
+      <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
+      <p>&nbsp;</p>
+      <p><strong>Sonstige Erklärungen</strong></p>
+      <p><strong>EP</strong> = Einheitspreis</p>
+      <p><strong>GB</strong> = Gesamtbetrag</p>
+      <p><strong>NEP</strong> = Nur Einheitspreis</p>
+      <p><strong>o.B.</strong> = ohne Berechnung</p>
+    </div>
+  </section>
+
+</div>
+
+<div class="totals-bar">
+  <span class="tb-count" id="tbCount">0 von 0 Positionen aktiv</span>
+  <span>Netto <b id="barNetto">0,00</b></span>
+  <span>MwSt <b id="barVat">0,00</b></span>
+  <span class="tb-brutto">Brutto <b id="barBrutto">0,00</b></span>
+</div>
+
+<datalist id="unitList">
+  <option value="psch"><option value="St"><option value="Set"><option value="m">
+  <option value="m²"><option value="m³"><option value="kg"><option value="t">
+  <option value="h"><option value="a"><option value="%"><option value="lfm">
+  <option value="Pkt">
+</datalist>
+
+<script>
+"use strict";
+
+/* ---------- Helpers ---------- */
+function uid(){return 'id'+Math.random().toString(36).slice(2,10)+Date.now().toString(36);}
+function escapeHtml(str){
+  return String(str==null?'':str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function parseDeNumber(str){
+  if (typeof str !== 'string') return Number(str)||0;
+  let s = str.trim();
+  if (s === '') return 0;
+  s = s.replace(/\./g,'').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : n;
+}
+function formatQty(n){
+  n = Number(n)||0;
+  if (Number.isInteger(n)) return n.toLocaleString('de-DE');
+  return n.toLocaleString('de-DE', {maximumFractionDigits:3});
+}
+function formatMenge(n){
+  n = Number(n)||0;
+  return n.toLocaleString('de-DE', {minimumFractionDigits:3, maximumFractionDigits:3});
+}
+function formatMoneyPlain(n){
+  n = Number(n)||0;
+  return n.toLocaleString('de-DE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function formatMoney(n){ return formatMoneyPlain(n); }
+function stripEuro(s){ return String(s||'').replace(/\s*€/g,''); }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+const NEP_PLACEHOLDER = '............';
+function isOhneGB(p){ return ['A','B'].includes(p.art||''); }
+function isTextArt(p){ return (p.art||'') === 'T'; }
+function effectivePrice(p, t){
+  if (p.pctOfSubtotal && t) return subtotalUpTo(t, p.id) / 100;
+  return Number(p.price)||0;
+}
+function positionTotalDisplay(p, t){
+  if (isTextArt(p)) return NEP_PLACEHOLDER;
+  if (isOhneGB(p)) return 'NEP';
+  if (!p.active) return 'NEP';
+  const price = effectivePrice(p, t);
+  if (price === 0) return 'o.B.';
+  return formatMoney((Number(p.qty)||0)*price);
+}
+function positionTotalPlain(p, t){
+  if (isTextArt(p)) return NEP_PLACEHOLDER;
+  if (isOhneGB(p)) return 'NEP';
+  if (!p.active) return 'NEP';
+  const price = effectivePrice(p, t);
+  if (price === 0) return 'o.B.';
+  return formatMoneyPlain((Number(p.qty)||0)*price);
+}
+function priceCellValue(p, t){
+  return isTextArt(p) ? NEP_PLACEHOLDER : formatMoneyPlain(effectivePrice(p, t));
+}
+
+/* ---------- Default example data (aus Konfigurator_und_Angebot_v3_korr.xlsx übernommen) ---------- */
+function pos(qty, unit, text, price, art, details){ return {id:uid(), active:true, qty:qty, unit:unit, text:text, price:price, art:art||'', details:details||''}; }
+function title(t, preamble, positions){ return {id:uid(), title:t, preamble:preamble||'', positions:positions}; }
+function subtotalRow(label){ return {id:uid(), type:'subtotal', label:label||'Zwischensumme'}; }
+function isSubtotalRow(p){ return !!p && p.type === 'subtotal'; }
+function insertionIndexForPos(positions, posNum){
+  if (posNum < 1) return 0;
+  let count = 0;
+  for (let i=0;i<positions.length;i++){
+    if (!isSubtotalRow(positions[i])){
+      count++;
+      if (count === posNum) return i;
+    }
+  }
+  return positions.length;
+}
+function pctSurchargePos(qty, unit, text, art){ const p = pos(qty, unit, text, 0, art); p.pctOfSubtotal = true; return p; }
+
+function buildDefaultState(){
+  return {"meta":{"name":"","address":"","cityZip":"","date":"","project":""},"vatRate":0,"titles":[{"id":"iduku3lhfnmslvsuyb","title":"VZ Verbraucherzentrale","preamble":"","positions":[{"id":"idogxpu5ijmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Basis-Check (Verbrauch, Geräte, Verhalten, einfache Einsparung)","price":200,"art":"B","details":""},{"id":"idei2l7qdgmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Gebäude-Check = Basis-Check plus Gebäudehülle und Heiztechnik","price":240,"art":"B","details":""},{"id":"idhgu6a1nbmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Detail-Check: sonstige, abgegrenzte Energie-Sonderfragen","price":320,"art":"B","details":""},{"id":"idy3ni2ajymslyl146","active":true,"qty":1,"unit":"psch","text":"Solar-Check ","price":0,"art":"B","details":"","pctOfSubtotal":false},{"id":"idrptvin8xmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Eigenanteil an der Fallpauschale","price":33.61,"art":"","details":""}]},{"id":"idkikr1zx8mslvsuyb","title":"Vorbereitende Maßnahmen","preamble":"Vorbemerkung: Dieser Titel umfasst alle notwendigen Vorarbeiten wie die Vor-Ort-Besichtigung, das Aufmaß sowie die statische Kurzeinschätzung, um eine fachgerechte und sichere Installation der Anlage zu gewährleisten.","positions":[{"id":"ids26hmgidmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Ortsbegehung und Aufmaß inkl. Kurzprotokoll (Fotos, Skizze, Materialliste, Terminvorschlag)","price":200,"art":"","details":""},{"id":"idbu0tfv8cmslvsuyb","active":true,"qty":1,"unit":"St","text":"Statischer Kurznachweis Flachdach nach DIN EN 1991-1-3/-1-4 (Wind, Schnee, Ballastierung)","price":50,"art":"","details":""},{"id":"id1w5ksdcamslvt6vw","active":true,"qty":1,"unit":"psch","text":"Planungs- und Ingenieursleistungen für die Errichtung einer verfahrensfreien PV-Freiflächenanlage","price":500,"art":"B","details":"Diese Leistungsposition umfasst die vollumfängliche technische sowie rechtliche Projektierung Ihrer verfahrensfreien Photovoltaik-Freiflächenanlage zur Sicherstellung eines rechtssicheren und wirtschaftlichen Anlagenbetriebs. Im Rahmen der initialen Machbarkeits- und Standortanalyse prüfen wir die topografische Eignung des Geländes, führen eine detaillierte Verschattungsanalyse durch und erstellen erste Ertrags- sowie Wirtschaftlichkeitsprognosen. Da bei verfahrensfreien Vorhaben die baubehördliche Vorabkontrolle entfällt und das Haftungsrisiko beim Bauherrn liegt, übernehmen wir die zwingend erforderliche rechtliche und ökologische Vorprüfung. Hierbei stellen wir die strikte Einhaltung des geltenden materiellen Rechts, wie etwa Grenzabstände, Vorgaben des Wasser- und Naturschutzes sowie die Vermeidung unzulässiger Blendwirkungen, gutachterlich sicher.\n\nParallel zur Standortprüfung übernehmen wir die vollständige Abstimmung mit dem zuständigen Netzbetreiber, stellen das offizielle Netzanschlussbegehren und planen die wirtschaftlichste Kabeltrasse bis zum zugewiesenen Einspeisepunkt. Aufbauend auf den genehmigungsrechtlichen und infrastrukturellen Vorabklärungen erfolgt die technische Detailplanung. Diese beinhaltet die Erstellung des finalen Anlagenlayouts inklusive Modulbelegung, die Auslegung sämtlicher elektrotechnischer Komponenten sowie die statische Berechnung und Auswahl der optimalen Unterkonstruktion auf Basis der lokalen Bodenbeschaffenheiten. Den Abschluss dieser Position bildet die Übergabe einer rechtssicheren, lückenlosen Gesamtdokumentation zur Absicherung gegen etwaige behördliche oder nachbarschaftliche Einwände sowie die Vorbereitung der finalen Anlagenregistrierung im Marktstammdatenregister (MaStR) der Bundesnetzagentur.","detailsOpen":false,"pctOfSubtotal":false}]},{"id":"id383zlp02mslvsuyb","title":"ED SolarKraftwerk","preamble":"Bundle-Inhalt: ohne Halterung · 4 Stück Module · 3 m Anschlusskabel · PowerTracker IR","positions":[{"id":"idspjdbdtmmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Steckerfertiges Solarkraftwerk-Komplettsystem Solakon onPower zur dezentralen Erzeugung von Solarstrom und direkten Einspeisung in das häusliche Niederspannungsnetz (230 V Steckdose). Ausgestattet mit vier hochleistungsfähigen, bifazialen N-Typ TOPCon Solarmodulen im Full-Black-Design, hocheffizientem Mikrowechselrichter mit Drosselung auf 800 W AC (konform mit VDE-AR-N 4105) sowie umfassendem Plug & Play Kabelset und optionalem Speichersystem.","price":899,"art":"A","details":"","pctOfSubtotal":false},{"id":"idw25ozg64msly51hz","active":true,"qty":1,"unit":"","text":"5,12 kW Speicher","price":1999,"art":"G","details":"https://solarscouts.de/felicity-fla48100-eu?utm_source=google&utm_medium=cpc&utm_source_platform=google_ads&utm_campaign=SHOP+%7C+DB+SCALE&utm_id=22134840686&utm_content=818900093893&utm_term=&gads_campaign_id=22134840686&gads_adgroup_id=199555325260&gads_network=g&gads_device=c&gads_matchtype=&gads_target_id=pla-297762561508&gads_placement=&gads_product_id=2482&gads_product_country=DE&gads_product_language=de&gads_product_channel=online&gads_loc_physical=9116414&gads_loc_interest=&gad_source=1&gad_campaignid=22134840686&gbraid=0AAAAAoZezYe8cmR7PJdR1y6yMRPYw_IQn&gclid=Cj0KCQjwp9vTBhCWARIsANaUrjuW-zKbEAYMYgKGqwPq6tfgx5neAJZfUSBpjloRvYyNTSdWdTmE9cYaAjSwEALw_wcB&mtm_source=google&mtm_medium=cpc&mtm_campaign=SHOP+%7C+DB+SCALE&mtm_cid=22134840686&mtm_content=818900093893\n","pctOfSubtotal":false,"detailsOpen":false},{"id":"idy5h6gw39msly4ovf","type":"subtotal","label":"Zwischensumme"},{"id":"idb3879dtqmsly4ovf","active":true,"qty":7,"unit":"%","text":"Regiekosten und 1 Jahresbeitrag Energie Dezent eV – Verein für dezentrale Energienutzung (25,00/a)","price":0,"art":"%","details":"","pctOfSubtotal":true}]},{"id":"idozvc127bmslvsuyb","title":"Materiallieferung","preamble":"Vorbemerkung: Die nachfolgenden Positionen umfassen die Lieferung aller erforderlichen Komponenten und Montagematerialien. Sämtliche gelieferten Bauteile entsprechen den aktuellen Sicherheitsstandards, sind CE-geprüft und fabrikneu.","positions":[{"id":"id1m7xytgkmslvsuyb","active":true,"qty":4,"unit":"St","text":"PV-Modul monokristallin 425–500 Wp, bifazial oder Glas-Glas, inkl. Datenblatt/CE, 25–30 J. Leistungsgarantie","price":105,"art":"A","details":""},{"id":"idl874smcsmslvsuyb","active":true,"qty":1,"unit":"St","text":"Speicher mit integriertem 800-W-Wechselrichter Solakon ONE, 2,11 kWh LFP, 4 MPPT, IP65, EPS","price":1200,"art":"A","details":""},{"id":"id43fnv30wmslvsuyb","active":true,"qty":2,"unit":"Set","text":"Bitumendach, Biberschwanzdach, Trapez- / Wellblechdach, Garten","price":250,"art":"","details":""},{"id":"id9f7drbe4mslybcpm","active":true,"qty":0,"unit":"","text":"Flachdach-Halterungssystem verstellbar 18–22°, ballastiert, 1.134 × 466 mm, für 2 Module","price":0,"art":"","details":""},{"id":"idske9vcezmslybcpm","active":true,"qty":0,"unit":"","text":"Flachdach, Terrassen und Gärten,  klassische  Ziegeldächer","price":0,"art":"","details":""},{"id":"idbryqvollmslybcpm","active":true,"qty":0,"unit":"","text":"Gitterbalkon","price":0,"art":"","details":""},{"id":"idgzcu9vyzmslybcpm","active":true,"qty":0,"unit":"","text":"Ohne Montagesystem","price":0,"art":"","details":""},{"id":"idt2ekb6c4mslvsuyb","active":true,"qty":4,"unit":"St","text":"Bodenschutzmatten Gummigranulat unterhalb Auflagepunkte","price":12.5,"art":"","details":""},{"id":"idirpvxqjwmslvsuyb","active":true,"qty":12,"unit":"St","text":"Betongehwegplatte 50 × 50 × 5 cm zur Ballastierung (Menge nach Statik)","price":1.5,"art":"","details":""},{"id":"idywz4lf41mslvsuyb","active":true,"qty":1,"unit":"Set","text":"MC4-Verlängerungskabel UV-beständig 4 mm², längenoptimiert","price":15,"art":"","details":""},{"id":"idjop42nkimslvsuyb","active":true,"qty":1,"unit":"St","text":"AC-Anschlussleitung mit Wieland-Stecker (alternativ Schuko nach AG-Wunsch)","price":19.5,"art":"","details":""},{"id":"iddykket2zmslvsuyb","active":true,"qty":1,"unit":"St","text":"Smart-Meter Nulleinspeisung: Solakon PowerTracker IR (Optischer Lesekopf, Plug & Play)","price":69,"art":"","details":""},{"id":"idl790z5fwmslvsuyb","active":true,"qty":1,"unit":"","text":"Smart-Meter Nulleinspeisung: Shelly Pro 3EM (3-Phasen-Hutschienenzähler inkl. 3x 120A Klemmen)","price":81,"art":"A","details":""},{"id":"idipuosaq2mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Kleinmaterial: Kabelbinder, UV-Schellen, Beschriftungsschilder","price":10,"art":"","details":""},{"id":"idgvwwybykmslvsuyb","type":"subtotal","label":"Zwischensumme"},{"id":"idwj6eng98mslvsuyb","active":true,"qty":3.5,"unit":"%","text":"Kommissionierung, Transportkostenanteil, Dieselzuschlag, Mautgebühren","price":0,"art":"","details":"","pctOfSubtotal":true}]},{"id":"idw5cwld1amslvsuyb","title":"Montage Unterkonstruktion","preamble":"Vorbemerkung: Beinhaltet die fachgerechte und standsichere Montage des Halterungssystems inklusive Unterlagsschutz und statisch notwendiger Ballastierung sowie die Befestigung der Solarmodule.","positions":[{"id":"idcy0cladrmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Vorbereitung: Schutzmatten auslegen, Ausrichtung Süd (± 30°), wind-/ertragsoptimierte Positionierung","price":17.5,"art":"","details":""},{"id":"idr5w7rc8cmslvsuyb","active":true,"qty":1,"unit":"Set","text":"Aufbau ballastierte Halterung: Aluprofile, Winkeleinstellung, Ballastauflage nach Statik","price":135,"art":"","details":""},{"id":"idbtpv3nhemslvsuyb","active":true,"qty":2,"unit":"St","text":"Modulmontage inkl. Klemmen, Anzugsdrehmoment nach Herstellervorgabe, Fluchten prüfen","price":65,"art":"","details":""},{"id":"idre5n0parmslyf1z3","active":true,"qty":0,"unit":"psch","text":"Zulage-, bzw. Minderpreis bei Eigenleistung der Unterkonstruktionen","price":-150,"art":"B","details":"","pctOfSubtotal":false}]},{"id":"id6gczm7ffmslvsuyb","title":"Montage Speicher/Wechselrichter","preamble":"Hinweis: Verlangt der Netzbetreiber nach der Anmeldung im Marktstammdatenregister eine neue Zählerinstallation, ist das Umklemmen des Systems auf den neuen Zähler im Preis dieses Titels enthalten.","positions":[{"id":"id49orwax1mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Standortwahl frostgeschützt/belüftet, Mindestabstände nach Hersteller, Erreichbarkeit","price":10,"art":"","details":""},{"id":"idgmg3o8s4mslvsuyb","active":true,"qty":1,"unit":"St","text":"Mechanische Befestigung: Wandhalterung oder Stapelrahmen inkl. Verriegelungsprüfung","price":22.5,"art":"","details":""},{"id":"id3x4vr4hfmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Elektrische Verkabelung DC (max. 2.600 W PV) / AC, Erdung, Zugentlastung, UV-/nagerbeständig","price":130,"art":"","details":""}]},{"id":"idlfd6hk85mslvsuyb","title":"Smart-Meter & Nulleinspeisung, Dynamischer Stromtarif","preamble":"Vorbemerkung: Dieser Titel beinhaltet die Installation und Konfiguration der intelligenten Messtechnik zur Umsetzung der Nulleinspeisung und zur Überwachung der Energieflüsse.","positions":[{"id":"idtt5xozxvmslvsuyb","active":true,"qty":1,"unit":"St","text":"Installation Smart-Meter (Solakon PowerTracker IR oder Shelly Pro 3EM)","price":17.5,"art":"","details":""},{"id":"idt159tzgfmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Bei Shelly Pro 3EM: Einbau im Zählerschrank durch Elektrofachkraft (§ 13 NAV)","price":100,"art":"","details":""},{"id":"iddtly9ljumslvsuyb","active":true,"qty":1,"unit":"psch","text":"Einbindung Solakon App, Konfiguration Nulleinspeisungs-Modus","price":17.5,"art":"","details":""},{"id":"id9hso765lmslvsuyb","active":true,"qty":1,"unit":"","text":"Home Assistant ist eine der weltweit beliebtesten und mächtigsten Open-Source-Plattformen für die Smart-Home-Automatisierung. Die Software dient als zentrales Gehirn für das vernetzte Zuhause und ermöglicht es, smarte Geräte unterschiedlichster Hersteller und Funkstandards (wie WLAN, Zigbee, Z-Wave oder Bluetooth) auf einer einzigen Oberfläche zu bündeln und zu steuern.","price":165,"art":"B","details":""},{"id":"idgnqiz9dfmslvsuyb","active":true,"qty":1,"unit":"","text":"Minderpreis wenn WIN 11 entfällt und anderes Betriebssystem installiert wird","price":-35,"art":"E","details":""},{"id":"idjaobo0dxmslxy7qa","active":true,"qty":1,"unit":"","text":"Empfehlung zum \"Dynamischer Stromtarif\"\nKaufe Strom automatisch dann, wenn er am günstigsten ist\nFolge dem Link im Info-Fenster","price":0,"art":"","details":"https://www.rabot.energy/dynamischer-stromtarif/\n\nHier muss dann der \"Werbelink\" rein !!!\n","detailsOpen":true}]},{"id":"idy95oux9rmslvsuyb","title":"Inbetriebnahme","preamble":"Vorbemerkung: Umfasst die erste betriebsfertige Zuschaltung der Anlage inklusive aller normativ geforderten messtechnischen Prüfungen, Nachweise und der initialen Erprobung.","positions":[{"id":"idhwgtkd2tmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Funktionsprüfung: Isolationsmessung DC, Spannung/Polarität, NA-Schutz VDE-AR-N 4105, Erstladung","price":32.5,"art":"","details":""},{"id":"id4wb9r996mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Software: Solakon App auf AG-Endgerät, WLAN/LAN, Firmware-Update, Ausgang 800 W, EPS","price":17.5,"art":"","details":""},{"id":"id96pfkceamslvsuyb","active":true,"qty":1,"unit":"St","text":"Schriftliches Inbetriebnahmeprotokoll (Mess-/Prüfwerte, Seriennummern, Netzsynchronisation)","price":1,"art":"","details":""}]},{"id":"idztfne7qemslvsuyb","title":"Behördliche Anmeldung & Dokumentation","preamble":"Vorbemerkung: Zusammenstellung der kompletten Anlagendokumentation zur Übergabe sowie die Übernahme der verpflichtenden Registrierung im Marktstammdatenregister der Bundesnetzagentur.","positions":[{"id":"idvsssiix8mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Fertigmeldung im Marktstammdatenregister (BNetzA)","price":17.5,"art":"","details":""},{"id":"idipca3ahimslvsuyb","active":true,"qty":1,"unit":"St","text":"Übergabemappe: Datenblätter, CE/VDE/NA-Schutz, Garantien, Protokolle, Statik, Anleitungen (DE), MaStR","price":1,"art":"","details":""}]},{"id":"id1bxxa5eemslvsuyb","title":"Einweisung Bedienungspersonal","preamble":"Vorbemerkung: Eine umfassende, persönliche Einweisung des Nutzers vor Ort in die sichere Bedienung der Anlage, die Nutzung der App sowie Hinweise zur Wartung.","positions":[{"id":"id7x35l5kjmslvsuyb","active":true,"qty":1,"unit":"h","text":"Strukturierte Einweisung max. 2 Personen, mind. 60 min, vor Ort am fertigen System","price":68,"art":"","details":""},{"id":"id6kibxyw5mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Inhalte: Systemüberblick, App, EPS-Notstrom, Sicherheit, Wartung, Support","price":1,"art":"","details":""},{"id":"id4i97anyxmslvsuyb","active":true,"qty":1,"unit":"St","text":"Unterzeichnetes Einweisungsprotokoll","price":1,"art":"","details":""}]},{"id":"id6y0y8wzvmslvsuyb","title":"Übergabe & Abnahme","preamble":"Vorbemerkung: Gemeinsamer Abschluss des Projekts durch eine finale Durchsicht und die rechtsgeschäftliche Abnahme der funktionsfähigen Anlage durch den Auftraggeber.","positions":[{"id":"id8n775qm9mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Gemeinsame Funktionsprüfung mit AG, Übergabe Übergabemappe","price":17.5,"art":"","details":""},{"id":"id7ufxeloqmslvsuyb","active":true,"qty":1,"unit":"St","text":"Abnahmeprotokoll mit Mängelliste und Abnahmeerklärung","price":1,"art":"","details":""}]},{"id":"idnfc6sgwwmslvsuyb","title":"Lohnstunden für Personal & Gerät","preamble":"Lohnstunden und Gerätekosten nur im Bedarfsfall und auf ausdrückliche Anweisung des Bauherrn","positions":[{"id":"idqd3oycncmslvsuyb","active":true,"qty":10,"unit":"h","text":"Facharbeiter","price":68,"art":"","details":""}]},{"id":"idet8tqs2pmslvsuyb","title":"Optionale Leistungen (nach Bedarf AG)","preamble":"Vorbemerkung: Hier sind Zusatzleistungen aufgeführt, die auf Wunsch des Auftraggebers (AG) flexibel beauftragt werden können, aber für die Grundfunktion der Anlage nicht zwingend erforderlich sind.","positions":[{"id":"idjwq8wrtjmslvsuyb","active":true,"qty":1,"unit":"St","text":"Erweiterungsspeicher Solakon ONE, stapelbar bis 12,66 kWh (Preis je Modul)","price":499,"art":"","details":""},{"id":"idh8rhnd1smslvsuyb","active":true,"qty":1,"unit":"a","text":"Wartungsvertrag: jährliche Sichtprüfung, App- und Firmware-Check","price":25,"art":"","details":""},{"id":"idnu2ocu5cmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Sonder-Halterung / abweichende Aufstellsituation (nach Aufmaß)","price":250,"art":"","details":""},{"id":"idhxwmd0mamslvsuyb","active":true,"qty":1,"unit":"h","text":"Zusätzliche Elektroarbeiten am Zählerschrank durch Elektrofachkraft (Stundensatz)","price":68,"art":"","details":""}]}]};
+}
+
+/* ---------- State ---------- */
+const STORAGE_KEY = 'leistungsbuch_v1';
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw){
+      const parsed = JSON.parse(raw);
+      if (parsed && Array.isArray(parsed.titles)) return parsed;
+    }
+  }catch(e){}
+  return null;
+}
+let state = loadState() || buildDefaultState();
+
+/* ---------- DOM refs ---------- */
+const container = document.getElementById('titlesContainer');
+const summaryBody = document.getElementById('summaryBody');
+const nettoDisplay = document.getElementById('nettoDisplay');
+const discountDisplay = document.getElementById('discountDisplay');
+const newNettoDisplay = document.getElementById('newNettoDisplay');
+const vatDisplay = document.getElementById('vatDisplay');
+const bruttoDisplay = document.getElementById('bruttoDisplay');
+const barNetto = document.getElementById('barNetto');
+const barVat = document.getElementById('barVat');
+const barBrutto = document.getElementById('barBrutto');
+const tbCount = document.getElementById('tbCount');
+const vatRateInput = document.getElementById('vatRateInput');
+const saveStatus = document.getElementById('saveStatus');
+
+function findTitle(id){ return state.titles.find(t=>t.id===id); }
+
+const ART_OPTIONS = ['', 'G', 'A', 'B', 'E', 'Z', 'T', 'S', 'P', '%'];
+const ART_LABELS = {
+  '':'(leer) = Normalposition',
+  G:'G = Grundposition',
+  A:'A = Alternativposition',
+  B:'B = Bedarfsposition',
+  E:'E = Eventualposition',
+  Z:'Z = Zulageposition',
+  T:'T = Textposition',
+  S:'S = Stundenlohnarbeiten',
+  P:'P = Pauschalposition',
+  '%':'% = Prozentualer Zuschlag auf Zwischensumme'
+};
+function artOptionsHtml(current){
+  const cur = current || '';
+  return ART_OPTIONS.map(o => `<option value="${o}"${cur===o?' selected':''}>${o}</option>`).join('');
+}
+function expandArtOptions(sel){
+  Array.from(sel.options).forEach(o=>{ o.textContent = ART_LABELS[o.value] !== undefined ? ART_LABELS[o.value] : o.value; });
+}
+function collapseArtOptions(sel){
+  Array.from(sel.options).forEach(o=>{ o.textContent = o.value; });
+}
+
+/* ---------- Rendering ---------- */
+function rowHtml(p, ti, pi, t){
+  return `<tr class="position-row${p.active?'':' inactive'}" data-pos-id="${p.id}">
+    <td class="col-check"><input type="checkbox" data-field="active" ${p.active?'checked':''} aria-label="Position einbeziehen"></td>
+    <td class="col-posnr mono" data-role="posnr">${ti+1}.${pi+1}&nbsp;&nbsp;</td>
+    <td class="col-art"><select data-field="art" aria-label="Art">${artOptionsHtml(p.art)}</select></td>
+    <td class="col-qty"><input type="text" inputmode="decimal" class="mono num-input" data-field="qty" value="${formatMenge(p.qty)}" aria-label="Menge" ${(!p.active || isTextArt(p))?'disabled':''}></td>
+    <td class="col-unit"><input type="text" list="unitList" data-field="unit" value="${escapeHtml(p.unit)}" aria-label="Einheit"></td>
+    <td class="col-text">
+      <div class="kurztext-row">
+        <textarea class="text-input" data-field="text" rows="1" aria-label="Kurztext">${escapeHtml(p.text)}</textarea>
+        <button type="button" class="details-toggle${(p.details&&p.details.trim())?' has-details':''}" data-action="toggle-details" aria-label="Zusatzinformationen ${p.detailsOpen?'einklappen':'anzeigen'}" aria-expanded="${!!p.detailsOpen}" title="Zusatzinformationen">${p.detailsOpen?'▼':'▶'}</button>
+      </div>
+      ${p.detailsOpen ? `<textarea class="details-input" data-field="details" rows="5" placeholder="Zusatzinformationen (werden im PDF immer mit ausgegeben)" aria-label="Zusatzinformationen zur Position">${escapeHtml(p.details||'')}</textarea>` : ''}
+    </td>
+    <td class="col-price"><input type="text" inputmode="decimal" class="mono num-input" data-field="price" value="${priceCellValue(p, t)}" aria-label="Einzelpreis in Euro" ${(isTextArt(p)||p.pctOfSubtotal)?'disabled':''} title="${p.pctOfSubtotal?'Wird automatisch aus der Zwischensumme berechnet':''}"></td>
+    <td class="col-total mono" data-role="total">${positionTotalDisplay(p, t)}</td>
+    <td class="col-del"><button type="button" class="icon-btn" data-action="delete-position" aria-label="Position löschen" title="Position löschen">✕</button></td>
+  </tr>`;
+}
+
+function subtotalUpTo(t, markerId){
+  let sum = 0;
+  for (const p of t.positions){
+    if (p.id === markerId) break;
+    if (isSubtotalRow(p)) continue;
+    if (p.active && !isTextArt(p) && !isOhneGB(p)) sum += (Number(p.qty)||0)*effectivePrice(p,t);
+  }
+  return sum;
+}
+
+function subtotalRowHtml(p, t){
+  return `<tr class="position-row subtotal-row" data-subtotal-id="${p.id}">
+    <td class="col-check"></td>
+    <td class="col-posnr"></td>
+    <td class="col-art"></td>
+    <td class="col-qty"></td>
+    <td class="col-unit"></td>
+    <td class="col-text subtotal-label-input">Zwischensumme</td>
+    <td class="col-price"></td>
+    <td class="col-total mono" data-role="total">${formatMoney(subtotalUpTo(t, p.id))}</td>
+    <td class="col-del"><button type="button" class="icon-btn" data-action="delete-subtotal" aria-label="Zwischensumme löschen" title="Zwischensumme löschen">✕</button></td>
+  </tr>`;
+}
+
+function titleBlockHtml(t, ti){
+  return `<section class="title-block" data-title-id="${t.id}">
+    <div class="title-head">
+      <span class="title-badge mono">Titel ${ti+1}</span>
+      <input type="text" class="title-input" data-field="title" value="${escapeHtml(t.title)}" placeholder="Titelüberschrift" aria-label="Titelüberschrift">
+      <button type="button" class="del-title-btn" data-action="delete-title">Titel löschen</button>
+    </div>
+    <textarea class="preamble-input" data-field="preamble" rows="1" placeholder="Vorbemerkungen zu diesem Titel (optional)" aria-label="Vorbemerkungen">${escapeHtml(t.preamble)}</textarea>
+    <div class="table-scroll">
+      <table class="pos-table">
+        <thead><tr>
+          <th class="col-check"></th>
+          <th class="col-posnr">Pos.</th>
+          <th class="col-art">Art</th>
+          <th class="col-qty">Menge</th>
+          <th class="col-unit">Dim</th>
+          <th class="col-text">
+            <div class="kurztext-head-row">
+              <span>Kurztext</span>
+              <span class="details-info-icon" title="▶ kennzeichnet Positionen mit hinterlegten Zusatzinformationen">I</span>
+            </div>
+          </th>
+          <th class="col-price">EP</th>
+          <th class="col-total">GB</th>
+          <th class="col-del"></th>
+        </tr></thead>
+        <tbody>${(()=>{ let idx=0; return t.positions.map(p=>{
+          if (isSubtotalRow(p)) return subtotalRowHtml(p, t);
+          const html = rowHtml(p, ti, idx, t);
+          idx++;
+          return html;
+        }).join(''); })()}</tbody>
+        <tfoot><tr class="title-sum-row">
+          <td class="col-check"></td>
+          <td class="col-posnr"></td>
+          <td class="col-art"></td>
+          <td class="col-qty"></td>
+          <td class="col-unit"></td>
+          <td class="col-text titlesum-label">Titelsumme</td>
+          <td class="col-price"></td>
+          <td class="col-total mono" data-role="titlesum">${formatMoney(titleSum(t))}</td>
+          <td class="col-del"></td>
+        </tr></tfoot>
+      </table>
+    </div>
+    <button type="button" class="add-pos-btn" data-action="add-position">＋ Position hinzufügen</button>
+    <button type="button" class="add-pos-btn" data-action="add-subtotal">＋ Zwischensumme einfügen</button>
+  </section>`;
+}
+
+function normalizeInactiveQuantities(){
+  state.titles.forEach(t=>{
+    t.positions.forEach(p=>{
+      if (isSubtotalRow(p)) return;
+      if (!p.active){
+        if (typeof p.savedQty !== 'number') p.savedQty = p.qty;
+        p.qty = 0;
+      }
+    });
+  });
+}
+
+function renderTitles(){
+  normalizeInactiveQuantities();
+  container.innerHTML = state.titles.map((t,ti)=>titleBlockHtml(t,ti)).join('');
+  renderSummaryStructure();
+  recalcAll();
+}
+
+function renderSummaryStructure(){
+  summaryBody.innerHTML = state.titles.map((t,ti)=>`<tr data-summary-title="${t.id}">
+    <td class="mono">${ti+1}</td>
+    <td class="sum-title-text">${escapeHtml(t.title)}</td>
+    <td class="mono" data-role="summary-total">${formatMoney(titleSum(t))}</td>
+  </tr>`).join('');
+}
+
+function renderMeta(){
+  document.getElementById('m_name').value = state.meta.name || '';
+  document.getElementById('m_addr').value = state.meta.address || '';
+  document.getElementById('m_city').value = state.meta.cityZip || '';
+  document.getElementById('m_date').value = state.meta.date || '';
+  document.getElementById('m_project').value = state.meta.project || '';
+  vatRateInput.value = state.vatRate;
+}
+
+/* ---------- Calculation ---------- */
+function titleSum(t){
+  return t.positions.reduce((s,p)=> s + (!isSubtotalRow(p) && p.active && !isTextArt(p) && !isOhneGB(p) ? (Number(p.qty)||0)*effectivePrice(p,t) : 0), 0);
+}
+function computeDiscount(netto, vatRatePercent){
+  const vatFactor = 1 + (Number(vatRatePercent)||0)/100;
+  if (netto <= 0 || vatFactor <= 0) return {discount:0, newNetto:netto, vat:0, brutto:0};
+  const approxBrutto = netto * 0.95 * vatFactor;
+  const roundedBrutto = Math.round(approxBrutto/10)*10;
+  const newNetto = roundedBrutto / vatFactor;
+  const discount = netto - newNetto;
+  const vat = roundedBrutto - newNetto;
+  return {discount, newNetto, vat, brutto:roundedBrutto};
+}
+function recalcAll(){
+  let netto = 0, total = 0, activeCount = 0;
+  state.titles.forEach(t=>{
+    const sum = titleSum(t);
+    netto += sum;
+    total += t.positions.filter(p=>!isSubtotalRow(p)).length;
+    activeCount += t.positions.filter(p=>!isSubtotalRow(p) && p.active).length;
+    const sec = container.querySelector(`[data-title-id="${t.id}"]`);
+    if (sec){
+      const el = sec.querySelector('[data-role="titlesum"]');
+      if (el) el.textContent = formatMoney(sum);
+      t.positions.forEach(p=>{
+        if (isSubtotalRow(p)){
+          const stEl = sec.querySelector(`[data-subtotal-id="${p.id}"] [data-role="total"]`);
+          if (stEl) stEl.textContent = formatMoney(subtotalUpTo(t, p.id));
+        } else if (p.pctOfSubtotal){
+          const row = sec.querySelector(`[data-pos-id="${p.id}"]`);
+          if (row){
+            const totalCell = row.querySelector('[data-role="total"]');
+            if (totalCell) totalCell.textContent = positionTotalDisplay(p, t);
+            const priceInput = row.querySelector('input[data-field="price"]');
+            if (priceInput) priceInput.value = priceCellValue(p, t);
+          }
+        }
+      });
+    }
+    const srow = summaryBody.querySelector(`[data-summary-title="${t.id}"]`);
+    if (srow){
+      const el = srow.querySelector('[data-role="summary-total"]');
+      if (el) el.textContent = formatMoney(sum);
+    }
+  });
+  const {discount, newNetto, vat, brutto} = computeDiscount(netto, state.vatRate);
+  nettoDisplay.textContent = formatMoney(netto);
+  discountDisplay.textContent = formatMoney(-discount);
+  newNettoDisplay.textContent = formatMoney(newNetto);
+  vatDisplay.textContent = formatMoney(vat);
+  bruttoDisplay.textContent = formatMoney(brutto);
+  barNetto.textContent = formatMoney(newNetto);
+  barVat.textContent = formatMoney(vat);
+  barBrutto.textContent = formatMoney(brutto);
+  tbCount.textContent = `${activeCount} von ${total} Positionen aktiv`;
+}
+
+/* ---------- Persistence ---------- */
+let saveTimer = null;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveState, 350);
+}
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    saveStatus.textContent = 'Gespeichert';
+    saveStatus.classList.add('show');
+    clearTimeout(saveState._t);
+    saveState._t = setTimeout(()=>saveStatus.classList.remove('show'), 1400);
+  }catch(e){
+    saveStatus.textContent = 'Lokales Speichern nicht verfügbar';
+    saveStatus.classList.add('show');
+  }
+}
+
+/* ---------- Numeric field focus/blur formatting ---------- */
+function getFieldNumericValue(el){
+  const field = el.dataset.field;
+  const posRow = el.closest('.position-row');
+  const titleBlock = el.closest('.title-block');
+  const t = findTitle(titleBlock.dataset.titleId);
+  const p = t.positions.find(p=>p.id===posRow.dataset.posId);
+  return field === 'qty' ? p.qty : p.price;
+}
+
+container.addEventListener('focusin', e=>{
+  if (!e.target.classList.contains('num-input')) return;
+  const num = getFieldNumericValue(e.target);
+  e.target.value = String(num).replace('.', ',');
+  requestAnimationFrame(()=>e.target.select());
+});
+container.addEventListener('focusout', e=>{
+  if (!e.target.classList.contains('num-input')) return;
+  const num = getFieldNumericValue(e.target);
+  const field = e.target.dataset.field;
+  e.target.value = field === 'qty' ? formatMenge(num) : formatMoneyPlain(num);
+});
+
+/* ---------- Delegated input handler ---------- */
+container.addEventListener('input', e=>{
+  const field = e.target.dataset.field;
+  if (!field) return;
+  const posRow = e.target.closest('.position-row');
+  const titleBlock = e.target.closest('.title-block');
+
+  if (posRow && titleBlock){
+    const t = findTitle(titleBlock.dataset.titleId);
+    const p = t.positions.find(p=>p.id===posRow.dataset.posId);
+    if (!p) return;
+    if (field === 'qty'){ p.qty = parseDeNumber(e.target.value); }
+    else if (field === 'price'){ p.price = parseDeNumber(e.target.value); }
+    else if (field === 'unit'){ p.unit = e.target.value; }
+    else if (field === 'art'){ p.art = e.target.value; p.pctOfSubtotal = (p.art === '%'); }
+    else if (field === 'text'){ p.text = e.target.value; }
+    else if (field === 'details'){ p.details = e.target.value; }
+    if (field === 'qty' || field === 'price' || field === 'art'){
+      const totalCell = posRow.querySelector('[data-role="total"]');
+      if (totalCell) totalCell.textContent = positionTotalDisplay(p, t);
+    }
+    if (field === 'art'){
+      const priceInput = posRow.querySelector('input[data-field="price"]');
+      const qtyInput = posRow.querySelector('input[data-field="qty"]');
+      const textRow = isTextArt(p);
+      if (priceInput){
+        priceInput.disabled = textRow || p.pctOfSubtotal;
+        priceInput.value = priceCellValue(p, t);
+      }
+      if (qtyInput){
+        qtyInput.disabled = textRow || !p.active;
+      }
+    }
+    recalcAll();
+    scheduleSave();
+  } else if (titleBlock){
+    const t = findTitle(titleBlock.dataset.titleId);
+    if (!t) return;
+    if (field === 'title'){
+      t.title = e.target.value;
+      const srow = summaryBody.querySelector(`[data-summary-title="${t.id}"] .sum-title-text`);
+      if (srow) srow.textContent = t.title;
+    } else if (field === 'preamble'){
+      t.preamble = e.target.value;
+    }
+    scheduleSave();
+  }
+});
+
+/* ---------- Delegated change handler (checkboxes) ---------- */
+container.addEventListener('change', e=>{
+  if (e.target.type !== 'checkbox' || e.target.dataset.field !== 'active') return;
+  const posRow = e.target.closest('.position-row');
+  const titleBlock = e.target.closest('.title-block');
+  const t = findTitle(titleBlock.dataset.titleId);
+  const p = t.positions.find(p=>p.id===posRow.dataset.posId);
+  const nowActive = e.target.checked;
+
+  if (!nowActive && p.active){
+    p.savedQty = p.qty;
+    p.qty = 0;
+  } else if (nowActive && !p.active){
+    p.qty = (typeof p.savedQty === 'number') ? p.savedQty : p.qty;
+  }
+  p.active = nowActive;
+  posRow.classList.toggle('inactive', !p.active);
+
+  const qtyInput = posRow.querySelector('input[data-field="qty"]');
+  if (qtyInput){
+    qtyInput.value = formatMenge(p.qty);
+    qtyInput.disabled = !p.active;
+  }
+  const totalCell = posRow.querySelector('[data-role="total"]');
+  if (totalCell){
+    totalCell.textContent = positionTotalDisplay(p);
+  }
+
+  recalcAll();
+  scheduleSave();
+});
+
+/* ---------- Art-Auswahlfeld: Langtext beim Öffnen, Kurzcode in Anzeige/Druck ---------- */
+container.addEventListener('mousedown', e=>{
+  if (e.target.tagName === 'SELECT' && e.target.dataset.field === 'art') expandArtOptions(e.target);
+});
+container.addEventListener('keydown', e=>{
+  if (e.target.tagName === 'SELECT' && e.target.dataset.field === 'art' && [' ','Enter','ArrowDown','ArrowUp'].includes(e.key)){
+    expandArtOptions(e.target);
+  }
+});
+container.addEventListener('change', e=>{
+  if (e.target.tagName === 'SELECT' && e.target.dataset.field === 'art') collapseArtOptions(e.target);
+});
+container.addEventListener('blur', e=>{
+  if (e.target.tagName === 'SELECT' && e.target.dataset.field === 'art') collapseArtOptions(e.target);
+}, true);
+
+/* ---------- Delegated click handler (add/delete) ---------- */
+container.addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const titleBlock = btn.closest('.title-block');
+  const action = btn.dataset.action;
+
+  if (action === 'add-position'){
+    const currentTitle = findTitle(titleBlock.dataset.titleId);
+    const currentTi = state.titles.findIndex(x=>x.id===currentTitle.id);
+
+    const titleInput = prompt(`In welchem Titel soll die Position eingefügt werden? (1–${state.titles.length})`, String(currentTi+1));
+    if (titleInput === null) return;
+    let titleNum = parseInt(titleInput, 10);
+    if (isNaN(titleNum) || titleNum < 1 || titleNum > state.titles.length) titleNum = currentTi+1;
+    const targetTitle = state.titles[titleNum-1];
+
+    const nonSubtotalCount = targetTitle.positions.filter(p=>!isSubtotalRow(p)).length;
+    const posInput = prompt(`An welcher Pos.-Nummer in Titel ${titleNum} (${targetTitle.title}) soll die neue Position eingefügt werden? (1–${nonSubtotalCount+1})`, String(nonSubtotalCount+1));
+    if (posInput === null) return;
+    let posNum = parseInt(posInput, 10);
+    if (isNaN(posNum) || posNum < 1) posNum = nonSubtotalCount+1;
+    if (posNum > nonSubtotalCount+1) posNum = nonSubtotalCount+1;
+
+    const insertIdx = insertionIndexForPos(targetTitle.positions, posNum);
+    const newPos = pos(0, '', '', 0);
+    targetTitle.positions.splice(insertIdx, 0, newPos);
+    renderTitles();
+    scheduleSave();
+    const row = container.querySelector(`[data-pos-id="${newPos.id}"] textarea[data-field="text"]`);
+    if (row) row.focus();
+  } else if (action === 'add-subtotal'){
+    const t = findTitle(titleBlock.dataset.titleId);
+    t.positions.push(subtotalRow('Zwischensumme'));
+    const newPos = pos(0, '', '', 0);
+    t.positions.push(newPos);
+    renderTitles();
+    scheduleSave();
+    const row = container.querySelector(`[data-pos-id="${newPos.id}"] textarea[data-field="text"]`);
+    if (row) row.focus();
+  } else if (action === 'toggle-details'){
+    const posRow = btn.closest('.position-row');
+    const t = findTitle(titleBlock.dataset.titleId);
+    const p = t.positions.find(p=>p.id===posRow.dataset.posId);
+    if (!p) return;
+    p.detailsOpen = !p.detailsOpen;
+    renderTitles();
+    if (p.detailsOpen){
+      const details = container.querySelector(`[data-pos-id="${p.id}"] textarea[data-field="details"]`);
+      if (details) details.focus();
+    }
+  } else if (action === 'delete-position'){
+    const posRow = btn.closest('.position-row');
+    if (!confirm('Diese Position wirklich entfernen?')) return;
+    const t = findTitle(titleBlock.dataset.titleId);
+    t.positions = t.positions.filter(p=>p.id !== posRow.dataset.posId);
+    renderTitles();
+    scheduleSave();
+  } else if (action === 'delete-subtotal'){
+    const subtotalRowEl = btn.closest('.subtotal-row');
+    if (!confirm('Diese Zwischensumme-Zeile wirklich entfernen?')) return;
+    const t = findTitle(titleBlock.dataset.titleId);
+    t.positions = t.positions.filter(p=>p.id !== subtotalRowEl.dataset.subtotalId);
+    renderTitles();
+    scheduleSave();
+  } else if (action === 'delete-title'){
+    if (!confirm('Titel inklusive aller enthaltenen Positionen wirklich löschen?')) return;
+    state.titles = state.titles.filter(t=>t.id !== titleBlock.dataset.titleId);
+    renderTitles();
+    scheduleSave();
+  }
+});
+
+/* ---------- Meta panel ---------- */
+function handleMetaChange(e){
+  const f = e.target.dataset.metaField;
+  if (!f) return;
+  state.meta[f] = e.target.value;
+  scheduleSave();
+}
+document.getElementById('metaPanel').addEventListener('input', handleMetaChange);
+document.getElementById('metaPanel').addEventListener('change', handleMetaChange);
+
+/* ---------- VAT rate ---------- */
+vatRateInput.addEventListener('input', ()=>{
+  state.vatRate = parseDeNumber(vatRateInput.value);
+  recalcAll();
+});
+vatRateInput.addEventListener('blur', ()=>{
+  vatRateInput.value = String(state.vatRate).replace('.', ',');
+  scheduleSave();
+});
+
+/* ---------- Toolbar actions ---------- */
+function addNewTitle(){
+  const t = title('Neuer Titel', '', [pos(0,'','',0)]);
+  state.titles.push(t);
+  renderTitles();
+  scheduleSave();
+  const sec = container.querySelector(`[data-title-id="${t.id}"]`);
+  if (sec){
+    sec.scrollIntoView({behavior:'smooth', block:'center'});
+    const inp = sec.querySelector('.title-input');
+    if (inp){ inp.focus(); inp.select(); }
+  }
+}
+document.getElementById('addTitleBtn').addEventListener('click', addNewTitle);
+document.getElementById('addTitleBtn2').addEventListener('click', addNewTitle);
+
+function formatDeDate(iso){
+  if (!iso) return '';
+  const parts = iso.split('-');
+  if (parts.length !== 3) return iso;
+  const [y,m,d] = parts;
+  return `${d}.${m}.${y}`;
+}
+
+function buildPrintDocument(){
+  const netto = state.titles.reduce((s,t)=> s + titleSum(t), 0);
+  const {discount, newNetto, vat, brutto} = computeDiscount(netto, state.vatRate);
+  const dateStr = new Date().toLocaleDateString('de-DE');
+
+  const titlesHtml = state.titles.map((t, ti) => {
+    if (t.positions.length === 0) return '';
+    let pidx = 0;
+    const rows = t.positions.map(p => {
+      if (isSubtotalRow(p)){
+        return `<tr class="pt-subtotal">
+          <td colspan="6">${escapeHtml(p.label)}</td>
+          <td class="mono num">${formatMoneyPlain(subtotalUpTo(t, p.id))}</td>
+        </tr>`;
+      }
+      const pi = pidx++;
+      return `<tr>
+        <td class="mono">${ti+1}.${pi+1}&nbsp;&nbsp;</td>
+        <td>${escapeHtml(p.art)}</td>
+        <td class="mono num">${formatMenge(p.qty)}</td>
+        <td>${escapeHtml(p.unit)}</td>
+        <td>${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
+        <td class="mono num">${priceCellValue(p, t)}</td>
+        <td class="mono num">${positionTotalPlain(p, t)}</td>
+      </tr>`;
+    }).join('');
+    return `<section class="pt-title">
+      <div class="pt-head"><span class="pt-badge">Titel ${ti+1}</span><h3>${escapeHtml(t.title)}</h3></div>
+      ${t.preamble ? `<p class="pt-preamble">${escapeHtml(stripEuro(t.preamble))}</p>` : ''}
+      <table class="postbl">
+        <thead><tr><th>Pos.</th><th>Art</th><th class="num">Menge</th><th>Dim</th><th>Kurztext</th><th class="num">EP</th><th class="num">GB</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr><td colspan="6">Titelsumme</td><td class="mono num">${formatMoneyPlain(titleSum(t))}</td></tr></tfoot>
+      </table>
+    </section>`;
+  }).join('');
+
+  const summaryRows = state.titles.map((t,ti)=>`<tr><td class="mono">${ti+1}</td><td>${escapeHtml(t.title)}</td><td class="mono num">${formatMoneyPlain(titleSum(t))}</td></tr>`).join('');
+
+  return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${escapeHtml(state.meta.project || 'ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk')}</title>
+<style>
+  *{box-sizing:border-box;}
+  @page{size:A4 portrait;margin:0;}
+  body{font-family:Aptos,"Segoe UI",system-ui,sans-serif;color:#222;margin:16mm 5mm 16mm 20mm;font-size:12px;line-height:1.4;width:185mm;}
+  .mono{font-family:"IBM Plex Mono",Consolas,monospace;}
+  .num{text-align:right;}
+  h1{font-size:19px;margin:0 0 4px;}
+  h2{font-size:14.5px;margin:0 0 6px;}
+  h3{font-size:13.5px;margin:0;}
+  .meta{margin-bottom:18px;font-size:12.5px;}
+  .meta div{margin-bottom:2px;}
+  .pt-title{margin-bottom:16px;break-inside:avoid;}
+  .pt-head{display:flex;align-items:center;gap:8px;background:#e6f2f2;padding:6px 10px;border-radius:4px 4px 0 0;}
+  .pt-badge{font-size:10.5px;font-weight:700;background:#00848A;color:#fff;padding:2px 7px;border-radius:4px;}
+  .pt-preamble{font-size:11px;color:#555;background:#f4f4f4;padding:6px 10px;margin:0;}
+  table{width:100%;border-collapse:collapse;}
+  th,td{border-bottom:1px solid #ddd;padding:5px 8px;text-align:left;font-size:11.5px;}
+  thead th{background:#f0f0f0;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;}
+  table.postbl tr{break-inside:avoid;page-break-inside:avoid;}
+  table.postbl td{vertical-align:top;}
+  table.postbl td:nth-child(6), table.postbl td:nth-child(7){vertical-align:bottom;}
+  table.postbl{table-layout:fixed;width:180mm;}
+  table.postbl th:nth-child(1), table.postbl td:nth-child(1){width:10mm;}
+  table.postbl th:nth-child(2), table.postbl td:nth-child(2){width:10mm;}
+  table.postbl th:nth-child(3), table.postbl td:nth-child(3){width:20mm;}
+  table.postbl th:nth-child(4), table.postbl td:nth-child(4){width:10mm;}
+  table.postbl th:nth-child(5), table.postbl td:nth-child(5){width:80mm;overflow-wrap:break-word;word-break:break-word;hyphens:auto;}
+  table.postbl th:nth-child(6), table.postbl td:nth-child(6){width:25mm;}
+  table.postbl th:nth-child(7), table.postbl td:nth-child(7){width:25mm;}
+  .pt-pos-details{margin-top:3px;font-size:10.5px;color:#555;font-style:italic;}
+  tfoot td{border-top:1.5px solid #999;border-bottom:none;}
+  tr.pt-subtotal td{background:#e6f2f2;font-weight:700;}
+  .summary{margin-top:22px;break-inside:avoid;}
+  .totals{margin-top:10px;width:320px;margin-left:auto;font-size:13px;}
+  .totals div{display:flex;justify-content:space-between;padding:3px 0;}
+  .totals .discount-note{display:block;font-size:10.5px;color:#666;padding:6px 0 2px;line-height:1.4;}
+  .totals .new-netto{border-top:1px solid #ccc;margin-top:2px;padding-top:6px;}
+  .totals .grand{border-top:1.5px solid #999;margin-top:4px;padding-top:6px;}
+  .legend{margin-top:22px;break-inside:avoid;font-size:11.5px;}
+  .legend ul{margin:4px 0 8px 18px;padding:0;}
+  .legend li{margin-bottom:2px;}
+  @media print{ body{margin:16mm 5mm 16mm 20mm;} }
+</style></head>
+<body>
+  <h1>ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk</h1>
+  <div class="meta">
+    <div><strong>${escapeHtml(state.meta.name) || ''}</strong></div>
+    <div>${escapeHtml(state.meta.address) || ''}</div>
+    <div>${escapeHtml(state.meta.cityZip) || ''}</div>
+    <div>PV-Anlagenart: ${escapeHtml(state.meta.project) || ''}</div>
+    ${state.meta.date ? `<div>Datum der Erstellung: ${formatDeDate(state.meta.date)}</div>` : ''}
+    <div>Stand: ${dateStr}</div>
+  </div>
+  ${titlesHtml}
+  <div class="summary">
+    <h2>Zusammenstellung der Titelsummen</h2>
+    <table><thead><tr><th>Titel</th><th>Bezeichnung</th><th class="num">Titelsumme</th></tr></thead><tbody>${summaryRows}</tbody></table>
+    <div class="totals">
+      <div><span>Nettosumme</span><span class="mono">${formatMoneyPlain(netto)}</span></div>
+      <div class="discount-note">Bei Vergabe innerhalb von 10 Tagen nach dem Datum der Erstellung gewähren wir einen Nachlass von ca. 5% auf die Nettoangebotssumme (Bruttobetrag auf volle 10 gerundet).</div>
+      <div><span>Nachlass (ca. 5%)</span><span class="mono">${formatMoneyPlain(-discount)}</span></div>
+      <div class="new-netto"><span>Neuer Nettobetrag</span><span class="mono">${formatMoneyPlain(newNetto)}</span></div>
+      <div><span>zzgl. ${formatQty(state.vatRate)}% Mehrwertsteuer</span><span class="mono">${formatMoneyPlain(vat)}</span></div>
+      <div class="grand"><span>Bruttosumme</span><span class="mono">${formatMoneyPlain(brutto)}</span></div>
+    </div>
+  </div>
+  <div class="legend">
+    <h2>Legende</h2>
+    <p><strong>Erklärungen</strong></p>
+    <p>Art steht für</p>
+    <p><strong>N</strong> = Normalposition: Das ist die klassische Standardleistung. Sie hat eine bestimmte Menge, eine Maßeinheit und einen Einheitspreis. Sie wird regulär ausgeführt und fließt direkt in die Gesamtsumme ein und wird im LV nicht gesondert gekennzeichnet</p>
+    <p><strong>G</strong> = Grundposition: Eine normale Position, für die im Leistungsverzeichnis direkt eine alternative Ausführungsart zur Auswahl gestellt wird (siehe Alternativposition).</p>
+    <p><strong>A</strong> = Alternativposition (Wahlposition): Diese Position wird als Variante zur Grundposition angeboten (z. B. Fliesen statt Teppich). Ihr Preis wird bei der Angebotsabgabe nicht in die Gesamtsumme eingerechnet. Erst wenn der Auftraggeber sich für die Alternative entscheidet, ersetzt ihr Preis den der Grundposition. (NEP): Fließt bei der Angebotswertung nicht in die Endsumme ein.</p>
+    <p><strong>B</strong> = Bedarfsposition: Diese Leistung wird nur ausgeführt, wenn sie während der Bauphase tatsächlich gebraucht und vom Auftraggeber explizit angeordnet wird. Ohne Gesamtbetrag (NEP): Fließt bei der Angebotswertung nicht in die Endsumme ein.</p>
+    <p><strong>E</strong> = Eventualposition: Mit Gesamtbetrag (mit GB): Fließt bei der Angebotswertung in die Angebotssumme ein, um Bieter besser vergleichen zu können</p>
+    <p><strong>Z</strong> = Zulageposition: Eine Position, die nur in Verbindung mit einer anderen Hauptposition existiert. Sie vergütet einen spezifischen Mehraufwand oder eine Erschwernis (z. B. „Zulage für den Aushub von felsigem Boden").</p>
+    <p><strong>T</strong> = Textposition / Hinweistext: Diese enthalten keine Preise oder Mengen, sondern dienen rein der Information. Das können technische Vorbemerkungen oder Erläuterungen zu den nachfolgenden Positionen sein.</p>
+    <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
+    <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
+    <p>&nbsp;</p>
+    <p><strong>Sonstige Erklärungen</strong></p>
+    <p><strong>EP</strong> = Einheitspreis</p>
+    <p><strong>GB</strong> = Gesamtbetrag</p>
+    <p><strong>NEP</strong> = Nur Einheitspreis</p>
+    <p><strong>o.B.</strong> = ohne Berechnung</p>
+  </div>
+</body></html>`;
+}
+
+document.getElementById('printBtn').addEventListener('click', ()=>{
+  const html = buildPrintDocument();
+  let w = null;
+  try{ w = window.open('', '_blank'); }catch(e){ w = null; }
+  if (w){
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    const triggerPrint = ()=>{ try{ w.focus(); w.print(); }catch(e){} };
+    if (w.document.readyState === 'complete') triggerPrint();
+    else w.addEventListener('load', triggerPrint);
+  } else {
+    try{ window.print(); }catch(e){}
+    setTimeout(()=>{
+      alert('Der Druckdialog konnte nicht geöffnet werden – vermutlich blockiert die eingebettete Vorschau Pop-ups. Bitte die heruntergeladene Datei „Leistungsverzeichnis_ED_Solar-Kraftwerk.html" direkt im Browser öffnen und dort erneut auf „Drucken / PDF" klicken.');
+    }, 200);
+  }
+});
+
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if (!confirm('Wirklich zurücksetzen? Alle Änderungen gehen verloren und die Beispieldaten werden neu geladen.')) return;
+  state = buildDefaultState();
+  renderMeta();
+  renderTitles();
+  saveState();
+});
+
+document.getElementById('exportBtn').addEventListener('click', ()=>{
+  const dataStr = JSON.stringify(state, null, 2);
+  const blob = new Blob([dataStr], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const slug = (state.meta.project || 'Leistungsbuch').replace(/[^a-z0-9äöüß_-]+/gi,'_').slice(0,40);
+  const date = new Date().toISOString().slice(0,10);
+  a.href = url;
+  a.download = `Leistungsbuch_${slug}_${date}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById('importBtn').addEventListener('click', ()=>{
+  document.getElementById('importFileInput').click();
+});
+document.getElementById('importFileInput').addEventListener('change', e=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const parsed = JSON.parse(reader.result);
+      if (!parsed || !Array.isArray(parsed.titles)) throw new Error('Ungültiges Format');
+      if (!parsed.meta) parsed.meta = {name:'',address:'',cityZip:'',project:''};
+      if (typeof parsed.vatRate !== 'number') parsed.vatRate = 19;
+      state = parsed;
+      renderMeta();
+      renderTitles();
+      saveState();
+    }catch(err){
+      alert('Die Datei konnte nicht gelesen werden. Bitte eine gültige, zuvor exportierte JSON-Datei wählen.');
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+  e.target.value = '';
+});
+
+/* ---------- Print date ---------- */
+window.addEventListener('beforeprint', ()=>{
+  document.querySelectorAll('.print-date').forEach(el=>{
+    el.textContent = 'Stand: ' + new Date().toLocaleDateString('de-DE');
+  });
+});
+
+/* ---------- Init ---------- */
+renderMeta();
+renderTitles();
+</script>
+</body>
+</html>
