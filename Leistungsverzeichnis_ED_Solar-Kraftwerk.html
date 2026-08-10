@@ -703,6 +703,41 @@ function buildLbGroups(flatList){
   return groups;
 }
 const LB_GROUPS = buildLbGroups(LB_NR_OPTIONS);
+LB_GROUPS.push(
+  {lb:'054-9120 Unterkonstruktionen - Photovoltaik / Solarthermie (Montageschienen, Dachhaken, Flachdach-Aufständerungen)', tlbs:[
+    '054-8482 Photovoltaikmodule (z. B. monokristalline Module, Glas-Glas/Glas-Folie)',
+    '054-8658 Wechselrichter - Photovoltaik (z. B. Stringwechselrichter, Modulwechselrichter, MPP-Tracker)',
+    '054-9167 Batterieanlagen - Photovoltaik (Heimspeicher und Gewerbespeicher)',
+    '054-9224 Batterie-Wechselrichter AC'
+  ]},
+  {lb:'020-9120 Unterkonstruktionen - Photovoltaik / Solarthermie (Hierüber werden die eigentlichen PV-Dachhaken, Profile und Montageschienen für Aufdach-Anlagen beschrieben)', tlbs:[
+    '020-648 Dachvorarbeiten (Untergrundvorbereitung, Auffütterungen)',
+    '020-195 Deckungen / Bekleidungen - Dachziegel (Hierüber lässt sich das Auf- und Zudecken, Auswechseln von Ziegeln sowie das Eindecken von speziellen Ziegelformen abbilden)',
+    '020-192 Unterkonstruktionen - Lattung (Anpassung oder Neuerstellung der Traglattung, die für Indach-PV-Systeme oder Solardachziegel zwingend passgenau benötigt wird)',
+    '020-8482 Photovoltaikmodule (Hier können Sie über die Beschreibungsmerkmale die „Ausführung Aufstellung/Einbau" auf Indachmontage oder Solardachziegel einstellen)',
+    '020-232 Sicherheitsdachhaken (Nach DIN EN 517)'
+  ]}
+);
+function findLbGroup(prefix){ return LB_GROUPS.find(g=>g.lb.startsWith(prefix+'-100')); }
+findLbGroup('053').tlbs.push(
+  '053-5389 Leitungen, flexibel – Niederspannung',
+  '053-5395 Kabel - Niederspannung',
+  '053-5388 Kunststoffaderleitungen - Niederspannung',
+  '053-3275 Rohre - Niederspannung',
+  '053-3268 Potentialausgleich – Niederspannung'
+);
+findLbGroup('050').tlbs.push(
+  '050-6141 Überspannungsschutzgeräte - Photovoltaik (Hierüber werden die spezifischen DC-Ableiter – Typ 1 oder Typ 2 – für die PV-Strings konfiguriert)',
+  '050-1958 Anschlussleitungen / Verbindungsleitungen - Blitzschutz und Erdung (Für die Leitungsführung von der Unterkonstruktion bis zur Potenzialausgleichsschiene oder zum Erder)',
+  '050-1962 Anschlüsse, Verbindungen, Überbrückungen - Blitzschutz (Für Verbinder, Klemmen und Überbrückungen an den Profilschienen der PV-Unterkonstruktion)',
+  '050-1963 Sonstige Bauteile - Blitzschutz und Erdung (Für spezifische Klemmen und Befestigungsmaterialien)'
+);
+findLbGroup('021').tlbs.push(
+  '021-0001 Einbau von Lastverteilschichten unter Solaranlagen',
+  '021-0002 Eindichtung von Kabeldurchführungen',
+  '021-0003 Eindichtung von Stützen und Ankern',
+  '021-0004 Verlegung von Bautenschutzmatten'
+);
 function lbOptionsHtml(current){
   const cur = current || 'LB 000';
   return ['LB 000', ...LB_GROUPS.map(g=>g.lb)].map(o =>
