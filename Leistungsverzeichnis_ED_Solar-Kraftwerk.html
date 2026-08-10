@@ -204,9 +204,10 @@
     field-sizing:content;line-height:1.35;
   }
 
+  .lbnr-row{display:flex;gap:6px;margin-bottom:2px;}
   .lbnr-select{
-    display:block;width:100%;border:1px solid transparent;border-radius:5px;background:transparent;
-    padding:4px 6px;font-size:11.5px;color:var(--ink);font-weight:400;margin-bottom:2px;cursor:pointer;
+    display:block;width:100%;flex:1;min-width:0;border:1px solid transparent;border-radius:5px;background:transparent;
+    padding:4px 6px;font-size:11.5px;color:var(--ink);font-weight:400;cursor:pointer;
   }
   .lbnr-select:hover{border-color:var(--border-strong);}
   .lbnr-select:focus{border-color:var(--petrol);background:var(--card);outline:none;}
@@ -683,13 +684,34 @@ const LB_NR_OPTIONS = [
   '084-100 Abbruch-, Rückbau- und Schadstoffsanierungsarbeiten','084-101 Vollabbruch','084-102 Teilabbruch','084-103 Asbestsanierung','084-104 KMF-Sanierung','084-105 Fachgerechte Entsorgung',
   '089-100 Verkehrssicherungsarbeiten','089-101 Absperrungen','089-102 Beschilderung','089-103 Fahrbahnmarkierung','089-104 Mobile Ampelanlagen'
 ];
-function lbNrOptionsHtml(current){
-  const cur = current || 'LB 000 - TLB 000';
-  return ['LB 000 - TLB 000', ...LB_NR_OPTIONS].map(o => {
-    const code = o.split(' ')[0];
-    const bold = /0$/.test(code);
-    return `<option value="${escapeHtml(o)}"${cur===o?' selected':''}${bold?' style="font-weight:700"':''}>${escapeHtml(o)}</option>`;
-  }).join('');
+function buildLbGroups(flatList){
+  const groups = [];
+  let current = null;
+  for (const entry of flatList){
+    const code = entry.split(' ')[0];
+    if (/0$/.test(code)){
+      current = {lb: entry, tlbs: []};
+      groups.push(current);
+    } else if (current){
+      current.tlbs.push(entry);
+    }
+  }
+  return groups;
+}
+const LB_GROUPS = buildLbGroups(LB_NR_OPTIONS);
+function lbOptionsHtml(current){
+  const cur = current || 'LB 000';
+  return ['LB 000', ...LB_GROUPS.map(g=>g.lb)].map(o =>
+    `<option value="${escapeHtml(o)}"${cur===o?' selected':''}>${escapeHtml(o)}</option>`
+  ).join('');
+}
+function tlbOptionsHtml(lbValue, current){
+  const cur = current || 'TLB 000';
+  const group = LB_GROUPS.find(g=>g.lb===lbValue);
+  const tlbs = group ? group.tlbs : [];
+  return ['TLB 000', ...tlbs].map(o =>
+    `<option value="${escapeHtml(o)}"${cur===o?' selected':''}>${escapeHtml(o)}</option>`
+  ).join('');
 }
 
 const ART_OPTIONS = ['', 'G', 'A', 'B', 'E', 'Z', 'T', 'S', 'P', 'V', '%'];
@@ -726,7 +748,10 @@ function rowHtml(p, ti, pi, t){
     <td class="col-qty"><input type="text" inputmode="decimal" class="mono num-input" data-field="qty" value="${formatMenge(p.qty)}" aria-label="Menge" ${(!p.active || isTextArt(p))?'disabled':''}></td>
     <td class="col-unit"><input type="text" list="unitList" data-field="unit" value="${escapeHtml(p.unit)}" aria-label="Einheit"></td>
     <td class="col-text">
-      <select class="lbnr-select" data-field="lbNr" aria-label="LB- &amp; TLB-Nr. zur Orientierung">${lbNrOptionsHtml(p.lbNr)}</select>
+      <div class="lbnr-row">
+        <select class="lbnr-select lb-select" data-field="lb" aria-label="Leistungsbereich (LB)">${lbOptionsHtml(p.lb)}</select>
+        <select class="lbnr-select tlb-select" data-field="tlb" aria-label="Teilleistungsbereich (TLB)">${tlbOptionsHtml(p.lb, p.tlb)}</select>
+      </div>
       <div class="kurztext-row">
         <textarea class="text-input" data-field="text" rows="1" aria-label="Kurztext">${escapeHtml(p.text)}</textarea>
         <button type="button" class="details-toggle${(p.details&&p.details.trim())?' has-details':''}" data-action="toggle-details" aria-label="Zusatzinformationen ${p.detailsOpen?'einklappen':'anzeigen'}" aria-expanded="${!!p.detailsOpen}" title="Zusatzinformationen">${p.detailsOpen?'▼':'▶'}</button>
@@ -975,7 +1000,13 @@ container.addEventListener('input', e=>{
     else if (field === 'art'){ p.art = e.target.value; p.pctOfSubtotal = (p.art === '%'); }
     else if (field === 'text'){ p.text = e.target.value; }
     else if (field === 'details'){ p.details = e.target.value; }
-    else if (field === 'lbNr'){ p.lbNr = e.target.value; }
+    else if (field === 'lb'){
+      p.lb = e.target.value;
+      p.tlb = 'TLB 000';
+      const tlbSel = posRow.querySelector('.tlb-select');
+      if (tlbSel) tlbSel.innerHTML = tlbOptionsHtml(p.lb, p.tlb);
+    }
+    else if (field === 'tlb'){ p.tlb = e.target.value; }
     if (field === 'qty' || field === 'price' || field === 'art'){
       const totalCell = posRow.querySelector('[data-role="total"]');
       if (totalCell) totalCell.textContent = positionTotalDisplay(p, t);
@@ -1194,7 +1225,7 @@ function buildPrintDocument(){
         <td>${escapeHtml(p.art)}</td>
         <td class="mono num">${formatMenge(p.qty)}</td>
         <td>${escapeHtml(p.unit)}</td>
-        <td><div class="pt-lbnr">${escapeHtml(p.lbNr || 'LB 000 - TLB 000')}</div>${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
+        <td><div class="pt-lbnr">${escapeHtml(p.lb || 'LB 000')}</div><div class="pt-lbnr">${escapeHtml(p.tlb || 'TLB 000')}</div>${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
         <td class="mono num">${priceCellValue(p, t)}</td>
         <td class="mono num">${positionTotalPlain(p, t)}</td>
       </tr>`;
