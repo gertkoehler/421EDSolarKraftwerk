@@ -76,6 +76,14 @@
     letter-spacing:.2px;
   }
   .toolbar-title small{display:block;font-size:11.5px;font-weight:400;opacity:.85;letter-spacing:.02em;}
+  .header-select{
+    display:block;width:100%;max-width:560px;background:transparent;color:var(--weiss);
+    font-size:17px;font-weight:600;letter-spacing:.2px;font-family:inherit;
+    border:1px solid transparent;border-radius:5px;padding:1px 4px;margin:0 0 2px -4px;cursor:pointer;
+  }
+  .header-select:hover{border-color:rgba(255,255,255,.35);}
+  .header-select:focus{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.6);outline:none;}
+  .header-select option{color:#000;font-weight:400;}
   .tbtn{
     background:rgba(255,255,255,.12);
     border:1px solid rgba(255,255,255,.35);
@@ -160,9 +168,9 @@
     border-bottom:1px solid var(--border-strong);white-space:nowrap;
   }
   .pos-table thead th.col-price, .pos-table thead th.col-total{text-align:right;}
+  .pos-table thead th.col-art{text-align:center;}
   .pos-table td{padding:6px 10px;border-bottom:1px solid var(--border);vertical-align:top;}
   .pos-table td.col-check{padding-top:9px;}
-  .pos-table td.col-price, .pos-table td.col-total{vertical-align:bottom;}
   .pos-table tbody tr:hover{background:var(--petrol-tint);}
   .pos-table tbody tr.inactive{opacity:.5;}
   .pos-table tbody tr.inactive .col-qty input{cursor:not-allowed;}
@@ -183,7 +191,7 @@
     width:100%;border:1px solid transparent;border-radius:5px;background:transparent;
     padding:5px 7px;font-size:13.5px;color:var(--ink);
   }
-  .col-art select{cursor:pointer;}
+  .col-art select{cursor:pointer;text-align:left;text-align-last:center;}
   .col-qty input, .col-price input{text-align:right;}
   .cell-input:hover, .col-art select:hover, .col-qty input:hover, .col-unit input:hover, .col-price input:hover,
   textarea.text-input:hover{border-color:var(--border-strong);}
@@ -196,6 +204,12 @@
     field-sizing:content;line-height:1.35;
   }
 
+  .lbnr-select{
+    display:block;width:100%;border:1px solid transparent;border-radius:5px;background:transparent;
+    padding:4px 6px;font-size:11.5px;color:var(--ink);font-weight:400;margin-bottom:2px;cursor:pointer;
+  }
+  .lbnr-select:hover{border-color:var(--border-strong);}
+  .lbnr-select:focus{border-color:var(--petrol);background:var(--card);outline:none;}
   .kurztext-row{display:flex;align-items:flex-start;gap:5ch;}
   .kurztext-row textarea.text-input{flex:1;}
   .details-toggle{
@@ -348,7 +362,15 @@
 <header class="toolbar">
   <div class="toolbar-inner">
     <div class="toolbar-title">
-      ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk
+      <select id="headerOrgSelect" class="header-select" aria-label="Organisation / Auftragnehmer">
+        <option>ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG</option>
+        <option>Ingenieurbüro für Hoch-, Tief und Ingenieurbau</option>
+        <option>Gert Köhler Diplom-Ingenieur für bautechnische Gesamtplanung</option>
+      </select>
+      <select id="headerProjectSelect" class="header-select" aria-label="Projekt">
+        <option>421 ED SolarKraftwerk</option>
+        <option>411 SolarGeoVento (Solarkamin)</option>
+      </select>
       <small>Erfassung von Titeln, Positionen &amp; Preisen für Bauleistungen</small>
     </div>
     <span id="saveStatus">Gespeichert</span>
@@ -430,6 +452,7 @@
       <p><strong>T</strong> = Textposition / Hinweistext: Diese enthalten keine Preise oder Mengen, sondern dienen rein der Information. Das können technische Vorbemerkungen oder Erläuterungen zu den nachfolgenden Positionen sein.</p>
       <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
       <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
+      <p><strong>V</strong> = Vorbereitende Arbeiten und Planung: Leistungen, die der Vorbereitung, Planung und Projektierung vorausgehender Maßnahmen dienen.</p>
       <p>&nbsp;</p>
       <p><strong>Sonstige Erklärungen</strong></p>
       <p><strong>EP</strong> = Einheitspreis</p>
@@ -464,7 +487,7 @@ function escapeHtml(str){
   return String(str==null?'':str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 function formatOZ(titleNum, posIdx){
-  const gewerk = String(titleNum).padStart(3,'0');
+  const gewerk = String(titleNum).padStart(2,'0');
   const titel = '00';
   const untertitel = '00';
   const position = String(posIdx*10).padStart(4,'0');
@@ -540,7 +563,7 @@ function insertionIndexForPos(positions, posNum){
 function pctSurchargePos(qty, unit, text, art){ const p = pos(qty, unit, text, 0, art); p.pctOfSubtotal = true; return p; }
 
 function buildDefaultState(){
-  return {"meta":{"name":"","address":"","cityZip":"","date":"","project":"Flachdachanlage 10 - 15° Ost-/Westausrichtung"},"vatRate":0,"paymentNote":"raten","titles":[{"id":"iduku3lhfnmslvsuyb","title":"VZ Verbraucherzentrale","preamble":"","positions":[{"id":"idogxpu5ijmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Basis-Check (Verbrauch, Geräte, Verhalten, einfache Einsparung)","price":200,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idei2l7qdgmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Gebäude-Check = Basis-Check plus Gebäudehülle und Heiztechnik","price":240,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idhgu6a1nbmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Detail-Check: sonstige, abgegrenzte Energie-Sonderfragen","price":320,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idy3ni2ajymslyl146","active":true,"qty":1,"unit":"psch","text":"Solar-Check ","price":0,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)","pctOfSubtotal":false},{"id":"ideignsolarber01vz","active":true,"qty":1,"unit":"psch","text":"Eignungsberatung Solar","price":240,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idrptvin8xmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Eigenanteil an der Fallpauschale","price":33.61,"art":"","details":""}]},{"id":"idkikr1zx8mslvsuyb","title":"Vorbereitende Maßnahmen","preamble":"Vorbemerkung: Dieser Titel umfasst alle notwendigen Vorarbeiten wie die Vor-Ort-Besichtigung, das Aufmaß sowie die statische Kurzeinschätzung, um eine fachgerechte und sichere Installation der Anlage zu gewährleisten.","positions":[{"id":"ids26hmgidmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Ortsbegehung und Aufmaß inkl. Kurzprotokoll (Fotos, Skizze, Materialliste, Terminvorschlag)","price":200,"art":"","details":""},{"id":"idbu0tfv8cmslvsuyb","active":true,"qty":1,"unit":"St","text":"Statischer Kurznachweis Flachdach nach DIN EN 1991-1-3/-1-4 (Wind, Schnee, Ballastierung)","price":50,"art":"","details":""},{"id":"id1w5ksdcamslvt6vw","active":true,"qty":1,"unit":"psch","text":"Planungs- und Ingenieursleistungen für die Errichtung einer verfahrensfreien PV-Freiflächenanlage","price":500,"art":"B","details":"Diese Leistungsposition umfasst die vollumfängliche technische sowie rechtliche Projektierung Ihrer verfahrensfreien Photovoltaik-Freiflächenanlage zur Sicherstellung eines rechtssicheren und wirtschaftlichen Anlagenbetriebs. Im Rahmen der initialen Machbarkeits- und Standortanalyse prüfen wir die topografische Eignung des Geländes, führen eine detaillierte Verschattungsanalyse durch und erstellen erste Ertrags- sowie Wirtschaftlichkeitsprognosen. Da bei verfahrensfreien Vorhaben die baubehördliche Vorabkontrolle entfällt und das Haftungsrisiko beim Bauherrn liegt, übernehmen wir die zwingend erforderliche rechtliche und ökologische Vorprüfung. Hierbei stellen wir die strikte Einhaltung des geltenden materiellen Rechts, wie etwa Grenzabstände, Vorgaben des Wasser- und Naturschutzes sowie die Vermeidung unzulässiger Blendwirkungen, gutachterlich sicher.\n\nParallel zur Standortprüfung übernehmen wir die vollständige Abstimmung mit dem zuständigen Netzbetreiber, stellen das offizielle Netzanschlussbegehren und planen die wirtschaftlichste Kabeltrasse bis zum zugewiesenen Einspeisepunkt. Aufbauend auf den genehmigungsrechtlichen und infrastrukturellen Vorabklärungen erfolgt die technische Detailplanung. Diese beinhaltet die Erstellung des finalen Anlagenlayouts inklusive Modulbelegung, die Auslegung sämtlicher elektrotechnischer Komponenten sowie die statische Berechnung und Auswahl der optimalen Unterkonstruktion auf Basis der lokalen Bodenbeschaffenheiten. Den Abschluss dieser Position bildet die Übergabe einer rechtssicheren, lückenlosen Gesamtdokumentation zur Absicherung gegen etwaige behördliche oder nachbarschaftliche Einwände sowie die Vorbereitung der finalen Anlagenregistrierung im Marktstammdatenregister (MaStR) der Bundesnetzagentur.","detailsOpen":false,"pctOfSubtotal":false}]},{"id":"id383zlp02mslvsuyb","title":"ED SolarKraftwerk","preamble":"Bundle-Inhalt: ohne Halterung · 4 Stück Module · 3 m Anschlusskabel · PowerTracker IR","positions":[{"id":"idspjdbdtmmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Steckerfertiges Solarkraftwerk-Komplettsystem Solakon onPower zur dezentralen Erzeugung von Solarstrom und direkten Einspeisung in das häusliche Niederspannungsnetz (230 V Steckdose). Ausgestattet mit vier hochleistungsfähigen, bifazialen N-Typ TOPCon Solarmodulen im Full-Black-Design, hocheffizientem Mikrowechselrichter mit Drosselung auf 800 W AC (konform mit VDE-AR-N 4105) sowie umfassendem Plug & Play Kabelset und optionalem Speichersystem.","price":899,"art":"A","details":"","pctOfSubtotal":false},{"id":"idw25ozg64msly51hz","active":true,"qty":1,"unit":"","text":"5,12 kW Speicher","price":1999,"art":"G","details":"https://solarscouts.de/felicity-fla48100-eu?utm_source=google&utm_medium=cpc&utm_source_platform=google_ads&utm_campaign=SHOP+%7C+DB+SCALE&utm_id=22134840686&utm_content=818900093893&utm_term=&gads_campaign_id=22134840686&gads_adgroup_id=199555325260&gads_network=g&gads_device=c&gads_matchtype=&gads_target_id=pla-297762561508&gads_placement=&gads_product_id=2482&gads_product_country=DE&gads_product_language=de&gads_product_channel=online&gads_loc_physical=9116414&gads_loc_interest=&gad_source=1&gad_campaignid=22134840686&gbraid=0AAAAAoZezYe8cmR7PJdR1y6yMRPYw_IQn&gclid=Cj0KCQjwp9vTBhCWARIsANaUrjuW-zKbEAYMYgKGqwPq6tfgx5neAJZfUSBpjloRvYyNTSdWdTmE9cYaAjSwEALw_wcB&mtm_source=google&mtm_medium=cpc&mtm_campaign=SHOP+%7C+DB+SCALE&mtm_cid=22134840686&mtm_content=818900093893\n","pctOfSubtotal":false,"detailsOpen":false},{"id":"idy5h6gw39msly4ovf","type":"subtotal","label":"Zwischensumme"},{"id":"idb3879dtqmsly4ovf","active":true,"qty":7,"unit":"%","text":"Regiekosten und 1 Jahresbeitrag Energie Dezent eV – Verein für dezentrale Energienutzung (25,00/a)","price":0,"art":"%","details":"","pctOfSubtotal":true}]},{"id":"idozvc127bmslvsuyb","title":"Materiallieferung","preamble":"Vorbemerkung: Die nachfolgenden Positionen umfassen die Lieferung aller erforderlichen Komponenten und Montagematerialien. Sämtliche gelieferten Bauteile entsprechen den aktuellen Sicherheitsstandards, sind CE-geprüft und fabrikneu.","positions":[{"id":"id1m7xytgkmslvsuyb","active":true,"qty":4,"unit":"St","text":"PV-Modul monokristallin 425–500 Wp, bifazial oder Glas-Glas, inkl. Datenblatt/CE, 25–30 J. Leistungsgarantie","price":105,"art":"A","details":""},{"id":"idl874smcsmslvsuyb","active":true,"qty":1,"unit":"St","text":"Speicher mit integriertem 800-W-Wechselrichter Solakon ONE, 2,11 kWh LFP, 4 MPPT, IP65, EPS","price":1200,"art":"A","details":""},{"id":"id43fnv30wmslvsuyb","active":true,"qty":2,"unit":"Set","text":"Bitumendach, Biberschwanzdach, Trapez- / Wellblechdach, Garten","price":250,"art":"","details":""},{"id":"id9f7drbe4mslybcpm","active":true,"qty":0,"unit":"","text":"Flachdach-Halterungssystem verstellbar 18–22°, ballastiert, 1.134 × 466 mm, für 2 Module","price":0,"art":"","details":""},{"id":"idske9vcezmslybcpm","active":true,"qty":0,"unit":"","text":"Flachdach, Terrassen und Gärten,  klassische  Ziegeldächer","price":0,"art":"","details":""},{"id":"idbryqvollmslybcpm","active":true,"qty":0,"unit":"","text":"Gitterbalkon","price":0,"art":"","details":""},{"id":"idgzcu9vyzmslybcpm","active":true,"qty":0,"unit":"","text":"Ohne Montagesystem","price":0,"art":"","details":""},{"id":"idt2ekb6c4mslvsuyb","active":true,"qty":4,"unit":"St","text":"Bodenschutzmatten Gummigranulat unterhalb Auflagepunkte","price":12.5,"art":"","details":""},{"id":"idirpvxqjwmslvsuyb","active":true,"qty":12,"unit":"St","text":"Betongehwegplatte 50 × 50 × 5 cm zur Ballastierung (Menge nach Statik)","price":1.5,"art":"","details":""},{"id":"idywz4lf41mslvsuyb","active":true,"qty":1,"unit":"Set","text":"MC4-Verlängerungskabel UV-beständig 4 mm², längenoptimiert","price":15,"art":"","details":""},{"id":"idjop42nkimslvsuyb","active":true,"qty":1,"unit":"St","text":"AC-Anschlussleitung mit Wieland-Stecker (alternativ Schuko nach AG-Wunsch)","price":19.5,"art":"","details":""},{"id":"iddykket2zmslvsuyb","active":true,"qty":1,"unit":"St","text":"Smart-Meter Nulleinspeisung: Solakon PowerTracker IR (Optischer Lesekopf, Plug & Play)","price":69,"art":"","details":""},{"id":"idl790z5fwmslvsuyb","active":true,"qty":1,"unit":"","text":"Smart-Meter Nulleinspeisung: Shelly Pro 3EM (3-Phasen-Hutschienenzähler inkl. 3x 120A Klemmen)","price":81,"art":"A","details":""},{"id":"idipuosaq2mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Kleinmaterial: Kabelbinder, UV-Schellen, Beschriftungsschilder","price":10,"art":"","details":""},{"id":"idgvwwybykmslvsuyb","type":"subtotal","label":"Zwischensumme"},{"id":"idwj6eng98mslvsuyb","active":true,"qty":3.5,"unit":"%","text":"Kommissionierung, Transportkostenanteil, Dieselzuschlag, Mautgebühren","price":0,"art":"","details":"","pctOfSubtotal":true}]},{"id":"idw5cwld1amslvsuyb","title":"Montage Unterkonstruktion","preamble":"Vorbemerkung: Beinhaltet die fachgerechte und standsichere Montage des Halterungssystems inklusive Unterlagsschutz und statisch notwendiger Ballastierung sowie die Befestigung der Solarmodule.","positions":[{"id":"idcy0cladrmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Vorbereitung: Schutzmatten auslegen, Ausrichtung Süd (± 30°), wind-/ertragsoptimierte Positionierung","price":17.5,"art":"","details":""},{"id":"idr5w7rc8cmslvsuyb","active":true,"qty":1,"unit":"Set","text":"Aufbau ballastierte Halterung: Aluprofile, Winkeleinstellung, Ballastauflage nach Statik","price":135,"art":"","details":""},{"id":"idbtpv3nhemslvsuyb","active":true,"qty":2,"unit":"St","text":"Modulmontage inkl. Klemmen, Anzugsdrehmoment nach Herstellervorgabe, Fluchten prüfen","price":65,"art":"","details":""},{"id":"idre5n0parmslyf1z3","active":true,"qty":0,"unit":"psch","text":"Zulage-, bzw. Minderpreis bei Eigenleistung der Unterkonstruktionen","price":-150,"art":"B","details":"","pctOfSubtotal":false}]},{"id":"id6gczm7ffmslvsuyb","title":"Montage Speicher/Wechselrichter","preamble":"Hinweis: Verlangt der Netzbetreiber nach der Anmeldung im Marktstammdatenregister eine neue Zählerinstallation, ist das Umklemmen des Systems auf den neuen Zähler im Preis dieses Titels enthalten.","positions":[{"id":"id49orwax1mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Standortwahl frostgeschützt/belüftet, Mindestabstände nach Hersteller, Erreichbarkeit","price":10,"art":"","details":""},{"id":"idgmg3o8s4mslvsuyb","active":true,"qty":1,"unit":"St","text":"Mechanische Befestigung: Wandhalterung oder Stapelrahmen inkl. Verriegelungsprüfung","price":22.5,"art":"","details":""},{"id":"id3x4vr4hfmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Elektrische Verkabelung DC (max. 2.600 W PV) / AC, Erdung, Zugentlastung, UV-/nagerbeständig","price":130,"art":"","details":""}]},{"id":"idlfd6hk85mslvsuyb","title":"Smart-Meter & Nulleinspeisung, Dynamischer Stromtarif","preamble":"Vorbemerkung: Dieser Titel beinhaltet die Installation und Konfiguration der intelligenten Messtechnik zur Umsetzung der Nulleinspeisung und zur Überwachung der Energieflüsse.","positions":[{"id":"idtt5xozxvmslvsuyb","active":true,"qty":1,"unit":"St","text":"Installation Smart-Meter (Solakon PowerTracker IR oder Shelly Pro 3EM)","price":17.5,"art":"","details":""},{"id":"idt159tzgfmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Bei Shelly Pro 3EM: Einbau im Zählerschrank durch Elektrofachkraft (§ 13 NAV)","price":100,"art":"","details":""},{"id":"iddtly9ljumslvsuyb","active":true,"qty":1,"unit":"psch","text":"Einbindung Solakon App, Konfiguration Nulleinspeisungs-Modus","price":17.5,"art":"","details":""},{"id":"id9hso765lmslvsuyb","active":true,"qty":1,"unit":"","text":"Home Assistant ist eine der weltweit beliebtesten und mächtigsten Open-Source-Plattformen für die Smart-Home-Automatisierung. Die Software dient als zentrales Gehirn für das vernetzte Zuhause und ermöglicht es, smarte Geräte unterschiedlichster Hersteller und Funkstandards (wie WLAN, Zigbee, Z-Wave oder Bluetooth) auf einer einzigen Oberfläche zu bündeln und zu steuern.","price":165,"art":"B","details":""},{"id":"idgnqiz9dfmslvsuyb","active":true,"qty":1,"unit":"","text":"Minderpreis wenn WIN 11 entfällt und anderes Betriebssystem installiert wird","price":-35,"art":"E","details":""},{"id":"idjaobo0dxmslxy7qa","active":true,"qty":1,"unit":"","text":"Empfehlung zum \"Dynamischer Stromtarif\"\nKaufe Strom automatisch dann, wenn er am günstigsten ist\nFolge dem Link im Info-Fenster","price":0,"art":"","details":"https://www.rabot.energy/dynamischer-stromtarif/\n\nHier muss dann der \"Werbelink\" rein !!!\n","detailsOpen":true}]},{"id":"idy95oux9rmslvsuyb","title":"Inbetriebnahme","preamble":"Vorbemerkung: Umfasst die erste betriebsfertige Zuschaltung der Anlage inklusive aller normativ geforderten messtechnischen Prüfungen, Nachweise und der initialen Erprobung.","positions":[{"id":"idhwgtkd2tmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Funktionsprüfung: Isolationsmessung DC, Spannung/Polarität, NA-Schutz VDE-AR-N 4105, Erstladung","price":32.5,"art":"","details":""},{"id":"id4wb9r996mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Software: Solakon App auf AG-Endgerät, WLAN/LAN, Firmware-Update, Ausgang 800 W, EPS","price":17.5,"art":"","details":""},{"id":"id96pfkceamslvsuyb","active":true,"qty":1,"unit":"St","text":"Schriftliches Inbetriebnahmeprotokoll (Mess-/Prüfwerte, Seriennummern, Netzsynchronisation)","price":1,"art":"","details":""}]},{"id":"idztfne7qemslvsuyb","title":"Behördliche Anmeldung & Dokumentation","preamble":"Vorbemerkung: Zusammenstellung der kompletten Anlagendokumentation zur Übergabe sowie die Übernahme der verpflichtenden Registrierung im Marktstammdatenregister der Bundesnetzagentur.","positions":[{"id":"idvsssiix8mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Fertigmeldung im Marktstammdatenregister (BNetzA)","price":17.5,"art":"","details":""},{"id":"idipca3ahimslvsuyb","active":true,"qty":1,"unit":"St","text":"Übergabemappe: Datenblätter, CE/VDE/NA-Schutz, Garantien, Protokolle, Statik, Anleitungen (DE), MaStR","price":1,"art":"","details":""}]},{"id":"id1bxxa5eemslvsuyb","title":"Einweisung Bedienungspersonal","preamble":"Vorbemerkung: Eine umfassende, persönliche Einweisung des Nutzers vor Ort in die sichere Bedienung der Anlage, die Nutzung der App sowie Hinweise zur Wartung.","positions":[{"id":"id7x35l5kjmslvsuyb","active":true,"qty":1,"unit":"h","text":"Strukturierte Einweisung max. 2 Personen, mind. 60 min, vor Ort am fertigen System","price":68,"art":"","details":""},{"id":"id6kibxyw5mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Inhalte: Systemüberblick, App, EPS-Notstrom, Sicherheit, Wartung, Support","price":1,"art":"","details":""},{"id":"id4i97anyxmslvsuyb","active":true,"qty":1,"unit":"St","text":"Unterzeichnetes Einweisungsprotokoll","price":1,"art":"","details":""}]},{"id":"id6y0y8wzvmslvsuyb","title":"Übergabe & Abnahme","preamble":"Vorbemerkung: Gemeinsamer Abschluss des Projekts durch eine finale Durchsicht und die rechtsgeschäftliche Abnahme der funktionsfähigen Anlage durch den Auftraggeber.","positions":[{"id":"id8n775qm9mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Gemeinsame Funktionsprüfung mit AG, Übergabe Übergabemappe","price":17.5,"art":"","details":""},{"id":"id7ufxeloqmslvsuyb","active":true,"qty":1,"unit":"St","text":"Abnahmeprotokoll mit Mängelliste und Abnahmeerklärung","price":1,"art":"","details":""}]},{"id":"idnfc6sgwwmslvsuyb","title":"Lohnstunden für Personal & Gerät","preamble":"Lohnstunden und Gerätekosten nur im Bedarfsfall und auf ausdrückliche Anweisung des Bauherrn","positions":[{"id":"idqd3oycncmslvsuyb","active":true,"qty":10,"unit":"h","text":"Facharbeiter","price":68,"art":"","details":""}]},{"id":"idet8tqs2pmslvsuyb","title":"Optionale Leistungen (nach Bedarf AG)","preamble":"Vorbemerkung: Hier sind Zusatzleistungen aufgeführt, die auf Wunsch des Auftraggebers (AG) flexibel beauftragt werden können, aber für die Grundfunktion der Anlage nicht zwingend erforderlich sind.","positions":[{"id":"idjwq8wrtjmslvsuyb","active":true,"qty":1,"unit":"St","text":"Erweiterungsspeicher Solakon ONE, stapelbar bis 12,66 kWh (Preis je Modul)","price":499,"art":"","details":""},{"id":"idh8rhnd1smslvsuyb","active":true,"qty":1,"unit":"a","text":"Wartungsvertrag: jährliche Sichtprüfung, App- und Firmware-Check","price":25,"art":"","details":""},{"id":"idnu2ocu5cmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Sonder-Halterung / abweichende Aufstellsituation (nach Aufmaß)","price":250,"art":"","details":""},{"id":"idhxwmd0mamslvsuyb","active":true,"qty":1,"unit":"h","text":"Zusätzliche Elektroarbeiten am Zählerschrank durch Elektrofachkraft (Stundensatz)","price":68,"art":"","details":""}]}]};
+  return {"meta":{"name":"","address":"","cityZip":"","date":"","project":"Flachdachanlage 10 - 15° Ost-/Westausrichtung"},"vatRate":0,"paymentNote":"raten","titles":[{"id":"iduku3lhfnmslvsuyb","title":"VZ Beratungsförderung der Verbraucherzentrale für Energieberatung","preamble":"","positions":[{"id":"idogxpu5ijmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Basis-Check (Verbrauch, Geräte, Verhalten, einfache Einsparung)","price":200,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idei2l7qdgmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Gebäude-Check = Basis-Check plus Gebäudehülle und Heiztechnik","price":240,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idhgu6a1nbmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Detail-Check: sonstige, abgegrenzte Energie-Sonderfragen","price":320,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idy3ni2ajymslyl146","active":true,"qty":1,"unit":"psch","text":"Solar-Check ","price":0,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)","pctOfSubtotal":false},{"id":"ideignsolarber01vz","active":true,"qty":1,"unit":"psch","text":"Eignungsberatung Solar","price":240,"art":"B","details":"Beratungsstelle Schwerin\nDr.-Külz-Straße 18\n19053 Schwerin\nDeutschland\nT +49 385 59181-10 Service-Telefon (keine Beratung)"},{"id":"idrptvin8xmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Eigenanteil an der Fallpauschale","price":33.61,"art":"","details":""}]},{"id":"idkikr1zx8mslvsuyb","title":"Vorbereitende Maßnahmen","preamble":"Vorbemerkung: Dieser Titel umfasst alle notwendigen Vorarbeiten wie die Vor-Ort-Besichtigung, das Aufmaß sowie die statische Kurzeinschätzung, um eine fachgerechte und sichere Installation der Anlage zu gewährleisten.","positions":[{"id":"ids26hmgidmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Ortsbegehung und Aufmaß inkl. Kurzprotokoll (Fotos, Skizze, Materialliste, Terminvorschlag)","price":200,"art":"","details":""},{"id":"idbu0tfv8cmslvsuyb","active":true,"qty":1,"unit":"St","text":"Statischer Kurznachweis Flachdach nach DIN EN 1991-1-3/-1-4 (Wind, Schnee, Ballastierung)","price":50,"art":"","details":""},{"id":"id1w5ksdcamslvt6vw","active":true,"qty":1,"unit":"psch","text":"Planungs- und Ingenieursleistungen für die Errichtung einer verfahrensfreien PV-Freiflächenanlage","price":500,"art":"B","details":"Diese Leistungsposition umfasst die vollumfängliche technische sowie rechtliche Projektierung Ihrer verfahrensfreien Photovoltaik-Freiflächenanlage zur Sicherstellung eines rechtssicheren und wirtschaftlichen Anlagenbetriebs. Im Rahmen der initialen Machbarkeits- und Standortanalyse prüfen wir die topografische Eignung des Geländes, führen eine detaillierte Verschattungsanalyse durch und erstellen erste Ertrags- sowie Wirtschaftlichkeitsprognosen. Da bei verfahrensfreien Vorhaben die baubehördliche Vorabkontrolle entfällt und das Haftungsrisiko beim Bauherrn liegt, übernehmen wir die zwingend erforderliche rechtliche und ökologische Vorprüfung. Hierbei stellen wir die strikte Einhaltung des geltenden materiellen Rechts, wie etwa Grenzabstände, Vorgaben des Wasser- und Naturschutzes sowie die Vermeidung unzulässiger Blendwirkungen, gutachterlich sicher.\n\nParallel zur Standortprüfung übernehmen wir die vollständige Abstimmung mit dem zuständigen Netzbetreiber, stellen das offizielle Netzanschlussbegehren und planen die wirtschaftlichste Kabeltrasse bis zum zugewiesenen Einspeisepunkt. Aufbauend auf den genehmigungsrechtlichen und infrastrukturellen Vorabklärungen erfolgt die technische Detailplanung. Diese beinhaltet die Erstellung des finalen Anlagenlayouts inklusive Modulbelegung, die Auslegung sämtlicher elektrotechnischer Komponenten sowie die statische Berechnung und Auswahl der optimalen Unterkonstruktion auf Basis der lokalen Bodenbeschaffenheiten. Den Abschluss dieser Position bildet die Übergabe einer rechtssicheren, lückenlosen Gesamtdokumentation zur Absicherung gegen etwaige behördliche oder nachbarschaftliche Einwände sowie die Vorbereitung der finalen Anlagenregistrierung im Marktstammdatenregister (MaStR) der Bundesnetzagentur.","detailsOpen":false,"pctOfSubtotal":false}]},{"id":"id383zlp02mslvsuyb","title":"ED SolarKraftwerk","preamble":"Bundle-Inhalt: ohne Halterung · 4 Stück Module · 3 m Anschlusskabel · PowerTracker IR","positions":[{"id":"idspjdbdtmmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Steckerfertiges Solarkraftwerk-Komplettsystem Solakon onPower zur dezentralen Erzeugung von Solarstrom und direkten Einspeisung in das häusliche Niederspannungsnetz (230 V Steckdose). Ausgestattet mit vier hochleistungsfähigen, bifazialen N-Typ TOPCon Solarmodulen im Full-Black-Design, hocheffizientem Mikrowechselrichter mit Drosselung auf 800 W AC (konform mit VDE-AR-N 4105) sowie umfassendem Plug & Play Kabelset und optionalem Speichersystem.","price":899,"art":"A","details":"","pctOfSubtotal":false},{"id":"idw25ozg64msly51hz","active":true,"qty":1,"unit":"","text":"5,12 kW Speicher","price":1999,"art":"G","details":"https://solarscouts.de/felicity-fla48100-eu?utm_source=google&utm_medium=cpc&utm_source_platform=google_ads&utm_campaign=SHOP+%7C+DB+SCALE&utm_id=22134840686&utm_content=818900093893&utm_term=&gads_campaign_id=22134840686&gads_adgroup_id=199555325260&gads_network=g&gads_device=c&gads_matchtype=&gads_target_id=pla-297762561508&gads_placement=&gads_product_id=2482&gads_product_country=DE&gads_product_language=de&gads_product_channel=online&gads_loc_physical=9116414&gads_loc_interest=&gad_source=1&gad_campaignid=22134840686&gbraid=0AAAAAoZezYe8cmR7PJdR1y6yMRPYw_IQn&gclid=Cj0KCQjwp9vTBhCWARIsANaUrjuW-zKbEAYMYgKGqwPq6tfgx5neAJZfUSBpjloRvYyNTSdWdTmE9cYaAjSwEALw_wcB&mtm_source=google&mtm_medium=cpc&mtm_campaign=SHOP+%7C+DB+SCALE&mtm_cid=22134840686&mtm_content=818900093893\n","pctOfSubtotal":false,"detailsOpen":false},{"id":"idy5h6gw39msly4ovf","type":"subtotal","label":"Zwischensumme"},{"id":"idb3879dtqmsly4ovf","active":true,"qty":7,"unit":"%","text":"Regiekosten und 1 Jahresbeitrag Energie Dezent eV – Verein für dezentrale Energienutzung (25,00/a)","price":0,"art":"%","details":"","pctOfSubtotal":true}]},{"id":"idozvc127bmslvsuyb","title":"Materiallieferung","preamble":"Vorbemerkung: Die nachfolgenden Positionen umfassen die Lieferung aller erforderlichen Komponenten und Montagematerialien. Sämtliche gelieferten Bauteile entsprechen den aktuellen Sicherheitsstandards, sind CE-geprüft und fabrikneu.","positions":[{"id":"id1m7xytgkmslvsuyb","active":true,"qty":4,"unit":"St","text":"PV-Modul monokristallin 425–500 Wp, bifazial oder Glas-Glas, inkl. Datenblatt/CE, 25–30 J. Leistungsgarantie","price":105,"art":"A","details":""},{"id":"idl874smcsmslvsuyb","active":true,"qty":1,"unit":"St","text":"Speicher mit integriertem 800-W-Wechselrichter Solakon ONE, 2,11 kWh LFP, 4 MPPT, IP65, EPS","price":1200,"art":"A","details":""},{"id":"id43fnv30wmslvsuyb","active":true,"qty":2,"unit":"Set","text":"Bitumendach, Biberschwanzdach, Trapez- / Wellblechdach, Garten","price":250,"art":"","details":""},{"id":"id9f7drbe4mslybcpm","active":true,"qty":0,"unit":"","text":"Flachdach-Halterungssystem verstellbar 18–22°, ballastiert, 1.134 × 466 mm, für 2 Module","price":0,"art":"","details":""},{"id":"idske9vcezmslybcpm","active":true,"qty":0,"unit":"","text":"Flachdach, Terrassen und Gärten,  klassische  Ziegeldächer","price":0,"art":"","details":""},{"id":"idbryqvollmslybcpm","active":true,"qty":0,"unit":"","text":"Gitterbalkon","price":0,"art":"","details":""},{"id":"idgzcu9vyzmslybcpm","active":true,"qty":0,"unit":"","text":"Ohne Montagesystem","price":0,"art":"","details":""},{"id":"idt2ekb6c4mslvsuyb","active":true,"qty":4,"unit":"St","text":"Bodenschutzmatten Gummigranulat unterhalb Auflagepunkte","price":12.5,"art":"","details":""},{"id":"idirpvxqjwmslvsuyb","active":true,"qty":12,"unit":"St","text":"Betongehwegplatte 50 × 50 × 5 cm zur Ballastierung (Menge nach Statik)","price":1.5,"art":"","details":""},{"id":"idywz4lf41mslvsuyb","active":true,"qty":1,"unit":"Set","text":"MC4-Verlängerungskabel UV-beständig 4 mm², längenoptimiert","price":15,"art":"","details":""},{"id":"idjop42nkimslvsuyb","active":true,"qty":1,"unit":"St","text":"AC-Anschlussleitung mit Wieland-Stecker (alternativ Schuko nach AG-Wunsch)","price":19.5,"art":"","details":""},{"id":"iddykket2zmslvsuyb","active":true,"qty":1,"unit":"St","text":"Smart-Meter Nulleinspeisung: Solakon PowerTracker IR (Optischer Lesekopf, Plug & Play)","price":69,"art":"","details":""},{"id":"idl790z5fwmslvsuyb","active":true,"qty":1,"unit":"","text":"Smart-Meter Nulleinspeisung: Shelly Pro 3EM (3-Phasen-Hutschienenzähler inkl. 3x 120A Klemmen)","price":81,"art":"A","details":""},{"id":"idipuosaq2mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Kleinmaterial: Kabelbinder, UV-Schellen, Beschriftungsschilder","price":10,"art":"","details":""},{"id":"idgvwwybykmslvsuyb","type":"subtotal","label":"Zwischensumme"},{"id":"idwj6eng98mslvsuyb","active":true,"qty":3.5,"unit":"%","text":"Kommissionierung, Transportkostenanteil, Dieselzuschlag, Mautgebühren","price":0,"art":"","details":"","pctOfSubtotal":true}]},{"id":"idw5cwld1amslvsuyb","title":"Montage Unterkonstruktion","preamble":"Vorbemerkung: Beinhaltet die fachgerechte und standsichere Montage des Halterungssystems inklusive Unterlagsschutz und statisch notwendiger Ballastierung sowie die Befestigung der Solarmodule.","positions":[{"id":"idcy0cladrmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Vorbereitung: Schutzmatten auslegen, Ausrichtung Süd (± 30°), wind-/ertragsoptimierte Positionierung","price":17.5,"art":"","details":""},{"id":"idr5w7rc8cmslvsuyb","active":true,"qty":1,"unit":"Set","text":"Aufbau ballastierte Halterung: Aluprofile, Winkeleinstellung, Ballastauflage nach Statik","price":135,"art":"","details":""},{"id":"idbtpv3nhemslvsuyb","active":true,"qty":2,"unit":"St","text":"Modulmontage inkl. Klemmen, Anzugsdrehmoment nach Herstellervorgabe, Fluchten prüfen","price":65,"art":"","details":""},{"id":"idre5n0parmslyf1z3","active":true,"qty":0,"unit":"psch","text":"Zulage-, bzw. Minderpreis bei Eigenleistung der Unterkonstruktionen","price":-150,"art":"B","details":"","pctOfSubtotal":false}]},{"id":"id6gczm7ffmslvsuyb","title":"Montage Speicher/Wechselrichter","preamble":"Hinweis: Verlangt der Netzbetreiber nach der Anmeldung im Marktstammdatenregister eine neue Zählerinstallation, ist das Umklemmen des Systems auf den neuen Zähler im Preis dieses Titels enthalten.","positions":[{"id":"id49orwax1mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Standortwahl frostgeschützt/belüftet, Mindestabstände nach Hersteller, Erreichbarkeit","price":10,"art":"","details":""},{"id":"idgmg3o8s4mslvsuyb","active":true,"qty":1,"unit":"St","text":"Mechanische Befestigung: Wandhalterung oder Stapelrahmen inkl. Verriegelungsprüfung","price":22.5,"art":"","details":""},{"id":"id3x4vr4hfmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Elektrische Verkabelung DC (max. 2.600 W PV) / AC, Erdung, Zugentlastung, UV-/nagerbeständig","price":130,"art":"","details":""}]},{"id":"idlfd6hk85mslvsuyb","title":"Smart-Meter & Nulleinspeisung, Dynamischer Stromtarif","preamble":"Vorbemerkung: Dieser Titel beinhaltet die Installation und Konfiguration der intelligenten Messtechnik zur Umsetzung der Nulleinspeisung und zur Überwachung der Energieflüsse.","positions":[{"id":"idtt5xozxvmslvsuyb","active":true,"qty":1,"unit":"St","text":"Installation Smart-Meter (Solakon PowerTracker IR oder Shelly Pro 3EM)","price":17.5,"art":"","details":""},{"id":"idt159tzgfmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Bei Shelly Pro 3EM: Einbau im Zählerschrank durch Elektrofachkraft (§ 13 NAV)","price":100,"art":"","details":""},{"id":"iddtly9ljumslvsuyb","active":true,"qty":1,"unit":"psch","text":"Einbindung Solakon App, Konfiguration Nulleinspeisungs-Modus","price":17.5,"art":"","details":""},{"id":"id9hso765lmslvsuyb","active":true,"qty":1,"unit":"","text":"Home Assistant ist eine der weltweit beliebtesten und mächtigsten Open-Source-Plattformen für die Smart-Home-Automatisierung. Die Software dient als zentrales Gehirn für das vernetzte Zuhause und ermöglicht es, smarte Geräte unterschiedlichster Hersteller und Funkstandards (wie WLAN, Zigbee, Z-Wave oder Bluetooth) auf einer einzigen Oberfläche zu bündeln und zu steuern.","price":165,"art":"B","details":""},{"id":"idgnqiz9dfmslvsuyb","active":true,"qty":1,"unit":"","text":"Minderpreis wenn WIN 11 entfällt und anderes Betriebssystem installiert wird","price":-35,"art":"E","details":""},{"id":"idjaobo0dxmslxy7qa","active":true,"qty":1,"unit":"","text":"Empfehlung zum \"Dynamischer Stromtarif\"\nKaufe Strom automatisch dann, wenn er am günstigsten ist\nFolge dem Link im Info-Fenster","price":0,"art":"","details":"https://www.rabot.energy/dynamischer-stromtarif/\n\nHier muss dann der \"Werbelink\" rein !!!\n","detailsOpen":true}]},{"id":"idy95oux9rmslvsuyb","title":"Inbetriebnahme","preamble":"Vorbemerkung: Umfasst die erste betriebsfertige Zuschaltung der Anlage inklusive aller normativ geforderten messtechnischen Prüfungen, Nachweise und der initialen Erprobung.","positions":[{"id":"idhwgtkd2tmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Funktionsprüfung: Isolationsmessung DC, Spannung/Polarität, NA-Schutz VDE-AR-N 4105, Erstladung","price":32.5,"art":"","details":""},{"id":"id4wb9r996mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Software: Solakon App auf AG-Endgerät, WLAN/LAN, Firmware-Update, Ausgang 800 W, EPS","price":17.5,"art":"","details":""},{"id":"id96pfkceamslvsuyb","active":true,"qty":1,"unit":"St","text":"Schriftliches Inbetriebnahmeprotokoll (Mess-/Prüfwerte, Seriennummern, Netzsynchronisation)","price":1,"art":"","details":""}]},{"id":"idztfne7qemslvsuyb","title":"Behördliche Anmeldung & Dokumentation","preamble":"Vorbemerkung: Zusammenstellung der kompletten Anlagendokumentation zur Übergabe sowie die Übernahme der verpflichtenden Registrierung im Marktstammdatenregister der Bundesnetzagentur.","positions":[{"id":"idvsssiix8mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Fertigmeldung im Marktstammdatenregister (BNetzA)","price":17.5,"art":"","details":""},{"id":"idipca3ahimslvsuyb","active":true,"qty":1,"unit":"St","text":"Übergabemappe: Datenblätter, CE/VDE/NA-Schutz, Garantien, Protokolle, Statik, Anleitungen (DE), MaStR","price":1,"art":"","details":""}]},{"id":"id1bxxa5eemslvsuyb","title":"Einweisung Bedienungspersonal","preamble":"Vorbemerkung: Eine umfassende, persönliche Einweisung des Nutzers vor Ort in die sichere Bedienung der Anlage, die Nutzung der App sowie Hinweise zur Wartung.","positions":[{"id":"id7x35l5kjmslvsuyb","active":true,"qty":1,"unit":"h","text":"Strukturierte Einweisung max. 2 Personen, mind. 60 min, vor Ort am fertigen System","price":68,"art":"","details":""},{"id":"id6kibxyw5mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Inhalte: Systemüberblick, App, EPS-Notstrom, Sicherheit, Wartung, Support","price":1,"art":"","details":""},{"id":"id4i97anyxmslvsuyb","active":true,"qty":1,"unit":"St","text":"Unterzeichnetes Einweisungsprotokoll","price":1,"art":"","details":""}]},{"id":"id6y0y8wzvmslvsuyb","title":"Übergabe & Abnahme","preamble":"Vorbemerkung: Gemeinsamer Abschluss des Projekts durch eine finale Durchsicht und die rechtsgeschäftliche Abnahme der funktionsfähigen Anlage durch den Auftraggeber.","positions":[{"id":"id8n775qm9mslvsuyb","active":true,"qty":1,"unit":"psch","text":"Gemeinsame Funktionsprüfung mit AG, Übergabe Übergabemappe","price":17.5,"art":"","details":""},{"id":"id7ufxeloqmslvsuyb","active":true,"qty":1,"unit":"St","text":"Abnahmeprotokoll mit Mängelliste und Abnahmeerklärung","price":1,"art":"","details":""}]},{"id":"idnfc6sgwwmslvsuyb","title":"Lohnstunden für Personal & Gerät","preamble":"Lohnstunden und Gerätekosten nur im Bedarfsfall und auf ausdrückliche Anweisung des Bauherrn","positions":[{"id":"idqd3oycncmslvsuyb","active":true,"qty":10,"unit":"h","text":"Facharbeiter","price":68,"art":"","details":""}]},{"id":"idet8tqs2pmslvsuyb","title":"Optionale Leistungen (nach Bedarf AG)","preamble":"Vorbemerkung: Hier sind Zusatzleistungen aufgeführt, die auf Wunsch des Auftraggebers (AG) flexibel beauftragt werden können, aber für die Grundfunktion der Anlage nicht zwingend erforderlich sind.","positions":[{"id":"idjwq8wrtjmslvsuyb","active":true,"qty":1,"unit":"St","text":"Erweiterungsspeicher Solakon ONE, stapelbar bis 12,66 kWh (Preis je Modul)","price":499,"art":"","details":""},{"id":"idh8rhnd1smslvsuyb","active":true,"qty":1,"unit":"a","text":"Wartungsvertrag: jährliche Sichtprüfung, App- und Firmware-Check","price":25,"art":"","details":""},{"id":"idnu2ocu5cmslvsuyb","active":true,"qty":1,"unit":"psch","text":"Sonder-Halterung / abweichende Aufstellsituation (nach Aufmaß)","price":250,"art":"","details":""},{"id":"idhxwmd0mamslvsuyb","active":true,"qty":1,"unit":"h","text":"Zusätzliche Elektroarbeiten am Zählerschrank durch Elektrofachkraft (Stundensatz)","price":68,"art":"","details":""}]}]};
 }
 
 /* ---------- State ---------- */
@@ -557,6 +580,8 @@ function loadState(){
 }
 let state = loadState() || buildDefaultState();
 if (typeof state.paymentNote !== 'string') state.paymentNote = 'raten';
+if (typeof state.headerOrg !== 'string') state.headerOrg = 'ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG';
+if (typeof state.headerProject !== 'string') state.headerProject = '421 ED SolarKraftwerk';
 
 /* ---------- DOM refs ---------- */
 const container = document.getElementById('titlesContainer');
@@ -578,7 +603,7 @@ function findTitle(id){ return state.titles.find(t=>t.id===id); }
 
 const NOTE_OPTIONS = [
   {key:'raten', text:'Es können auch Ratenzahlungsvereinbarungen auf die lohngebundenen Kosten vereinbart werden'},
-  {key:'nachlass10', text:'Bei Vergabe innerhalb von 10 Tagen nach dem Datum der Erstellung gewähren wir einen Nachlass von ca. 5% auf die Nettoangebotssumme (Bruttobetrag auf volle 10 gerundet)'},
+  {key:'nachlass10', text:'Bei Vergabe innerhalb von 10 Tagen nach dem Datum der Erstellung gewähren wir einen Nachlass von ca. 5% auf die Nettoangebotssumme'},
   {key:'skonto', text:'Bei Vorauszahlung der gesamten Summe gewähren wir ein Skonto in Höhe von 2,00 %'}
 ];
 function renderPaymentNotes(){
@@ -594,7 +619,79 @@ paymentNotesContainer?.addEventListener('change', e => {
   scheduleSave();
 });
 
-const ART_OPTIONS = ['', 'G', 'A', 'B', 'E', 'Z', 'T', 'S', 'P', '%'];
+const LB_NR_OPTIONS = [
+  '000-100 Baustelleneinrichtungen','000-101 Einrichten und Räumen','000-102 Vorhalten','000-103 Sicherungsmaßnahmen','000-104 Anschlüsse für Wasser und Energie',
+  '001-100 Gerüstarbeiten','001-101 Arbeits- und Schutzgerüste','001-102 Raumgerüste','001-103 Hängegerüste','001-104 Treppentürme','001-105 Einhausungen',
+  '002-100 Erdarbeiten','002-101 Oberbodenarbeiten','002-102 Lösen, Laden, Fördern von Boden und Fels','002-103 Baugruben herstellen','002-104 Rohr- und Leitungsgräben herstellen','002-105 Verfüllen von Baugruben und Gräben','002-106 Einbau von Erdstoffen für Dämme und Schüttungen','002-107 Bodenverbesserung und Bodenverfestigung','002-109 Geokunststoffe einbauen',
+  '003-100 Landschaftsbauarbeiten','003-101 Erdarbeiten im Landschaftsbau','003-102 Wege und Plätze','003-103 Mauern und Treppen','003-104 Wasseranlagen','003-105 Ausstattungselemente',
+  '004-100 Landschaftsbauarbeiten – Pflanzen','004-101 Rasen und Saat','004-102 Pflanzungen','004-103 Baumpflege','004-104 Pflegeleistungen',
+  '005-100 Brunnenbauarbeiten und Aufschlussbohrungen','005-101 Bohrungen','005-102 Ausbau','005-103 Pumpversuche','005-104 Wasserhaltung',
+  '006-100 Spezialtiefbauarbeiten','006-101 Bohrpfähle','006-102 Spundwände','006-103 Verbau','006-104 Injektionen','006-105 Anker','006-106 Schlitzwände',
+  '007-100 Untertagebauarbeiten','007-101 Ausbruch','007-102 Sicherung','007-103 Innenschale','007-104 Stollenbau',
+  '008-100 Wasserhaltungsarbeiten','008-101 Offene Wasserhaltung','008-102 Grundwasserabsenkung','008-103 Rohrleitungen',
+  '009-100 Entwässerungskanalarbeiten','009-101 Rohrleitungen','009-102 Schächte','009-103 Hausanschlüsse','009-104 Inspektion und Prüfung',
+  '010-100 Drän- und Versickerarbeiten','010-101 Rohrdränung','010-102 Flächendränung','010-103 Sickerschächte',
+  '011-100 Abscheider- und Kleinkläranlagen','011-101 Fettabscheider','011-102 Leichtflüssigkeitsabscheider','011-103 Kleinkläranlagen',
+  '012-100 Mauerarbeiten','012-101 Außenwände herstellen','012-102 Innenwände herstellen','012-103 Zweischaliges Mauerwerk und Verblendmauerwerk','012-104 Pfeiler und Stützen mauern','012-105 Schornsteine und Abgasanlagen','012-106 Überdeckungen und Stürze einbauen',
+  '013-100 Betonarbeiten','013-101 Schalungen','013-102 Bewehrung','013-103 Fundamente aus Ortbeton','013-104 Wände und aufgehende Bauteile aus Ortbeton','013-105 Decken aus Ortbeton','013-106 Stützen und Balken aus Ortbeton','013-107 Treppen aus Ortbeton','013-108 Betonfertigteile','013-109 Fugenbänder und Fugenbleche',
+  '014-100 Natur-, Betonwerksteinarbeiten','014-101 Fassadenbekleidungen','014-102 Bodenbeläge','014-103 Treppen','014-104 Massivstücke',
+  '016-100 Zimmer- und Holzbauarbeiten','016-101 Dachstühle','016-102 Holzrahmenbau','016-103 Brettsperrholz','016-104 Fachwerk','016-105 Holzfassaden',
+  '017-100 Stahlbauarbeiten','017-101 Tragwerke','017-102 Stützen und Träger','017-103 Treppen und Bühnen','017-104 Trapezprofile',
+  '018-100 Abdichtungsarbeiten','018-101 Bodenplatten','018-102 Außenwände erdberührt','018-103 Innenräume und Nasszellen','018-104 Fugenabdichtung',
+  '019-100 Kampfmittelräumarbeiten','019-101 Sondierung','019-102 Freilegung','019-103 Bergung und Entsorgung',
+  '020-100 Dachdeckungsarbeiten','020-101 Deckungen aus Dachziegeln','020-102 Deckungen aus Dachsteinen','020-103 Deckungen aus Schiefer','020-104 Deckungen aus Faserzement','020-105 Deckungen aus Metall','020-107 Einbauteile','020-108 Wärmedämmung im Dachbereich',
+  '021-100 Dachabdichtungsarbeiten','021-101 Bitumenbahnen','021-102 Kunststoffbahnen','021-103 Flüssigabdichtung','021-104 Wärmedämmung Flachdach','021-105 Gründach',
+  '022-100 Klempnerarbeiten','022-101 Dachrinnen','022-102 Fallrohre','022-103 Abdeckungen','022-104 Blechdächer',
+  '023-100 Putz- und Stuckarbeiten, Wärmedämmsysteme','023-101 Innenputz','023-102 Außenputz','023-103 Wärmedämmverbundsysteme (WDVS)','023-104 Stuckarbeiten','023-105 Sanierputz',
+  '024-100 Fliesen- und Plattenarbeiten','024-101 Wandfliesen','024-102 Bodenfliesen','024-103 Mosaik','024-104 Naturstein','024-105 Abdichtung im Verbund',
+  '025-100 Estricharbeiten','025-101 Zementestrich','025-102 Calciumsulfatestrich','025-103 Gussasphalt','025-104 Heizestrich','025-105 Beschichtungen',
+  '026-100 Fenster, Außentüren','026-101 Holzfenster','026-102 Kunststofffenster','026-103 Aluminiumfenster','026-104 Haustüren','026-105 Beschattung',
+  '027-100 Tischlerarbeiten','027-101 Innentüren','027-102 Wandverkleidungen','027-103 Einbaumöbel','027-104 Treppen',
+  '028-100 Parkett-, Holzpflasterarbeiten','028-101 Massivparkett','028-102 Mehrschichtparkett','028-103 Holzpflaster','028-104 Sockelleisten','028-105 Oberflächenbehandlung',
+  '029-100 Beschlagarbeiten','029-101 Türdrücker','029-102 Schließanlagen','029-103 Fensterbeschläge','029-104 Sicherheitstechnik',
+  '030-100 Rollladenarbeiten, Sonnenschutz','030-101 Rollläden','030-102 Raffstoren','030-103 Markisen','030-104 Innenliegender Sonnenschutz',
+  '031-100 Metallbauarbeiten','031-101 Geländer','031-102 Tore','031-103 Gitter','031-104 Vordächer','031-105 Leichtmetallfassaden',
+  '032-100 Verglasungsarbeiten','032-101 Isolierglas','032-102 Sicherheitsglas','032-103 Profilbauglas','032-104 Spiegel',
+  '033-100 Baureinigungsarbeiten','033-101 Baugrobreinigung','033-102 Baufeinreinigung','033-103 Glasreinigung','033-104 Fassadenreinigung',
+  '034-100 Maler- und Lackierarbeiten','034-101 Innenanstriche','034-102 Außenanstriche','034-103 Lackierungen','034-104 Beschichtungen','034-105 Wandbekleidungen',
+  '035-100 Korrosionsschutzarbeiten an Stahlbauten','035-101 Strahlentrostung','035-102 Grundbeschichtung','035-103 Deckbeschichtung','035-104 Brandschutzbeschichtung',
+  '036-100 Bodenbelagarbeiten','036-101 Textilbeläge','036-102 Elastische Beläge','036-103 Laminat','036-104 Vorbereitungsarbeiten',
+  '037-100 Tapezierarbeiten','037-101 Raufaser','037-102 Glasgewebe','037-103 Mustertapeten','037-104 Wandbilddrucke',
+  '038-100 Vorgehängte hinterlüftete Fassaden','038-101 Unterkonstruktion','038-102 Dämmung','038-103 Bekleidung','038-104 Metallbekleidung',
+  '039-100 Trockenbauarbeiten','039-101 Montagewände','039-102 Vorsatzschalen','039-103 Unterdecken','039-104 Bodensysteme und Doppelböden',
+  '040-100 Wärmeversorgungsanlagen – Betriebseinrichtungen','040-101 Wärmeerzeuger','040-102 Wärmepumpen','040-103 Blockheizkraftwerke',
+  '041-100 Wärmeversorgungsanlagen – Leitungen, Armaturen, Heizflächen','041-101 Rohrnetze','041-102 Armaturen','041-103 Heizflächen','041-105 Fußbodenheizung',
+  '042-100 Gas- und Wasseranlagen – Leitungen, Armaturen','042-101 Rohrleitungen','042-102 Armaturen','042-103 Trinkwassererwärmung',
+  '044-100 Abwasseranlagen – Leitungen, Abläufe, Armaturen','044-101 Schmutzwasserleitungen','044-102 Regenwasserleitungen','044-103 Bodenabläufe',
+  '045-100 Gas-, Wasser- und Entwässerungsanlagen – Ausstattung','045-101 Sanitärkeramik','045-102 Waschtischanlagen','045-103 Fertigbäder',
+  '047-100 Dämm- und Brandschutzarbeiten an technischen Anlagen','047-101 Rohrdämmung Heizung','047-102 Rohrdämmung Kälte','047-103 Brandschottungen',
+  '049-100 Feuerlöschanlagen, Feuerlöschgeräte','049-101 Sprinkleranlagen','049-102 Wandhydranten','049-103 Handfeuerlöscher',
+  '050-100 Blitzschutz- / Erdungsanlagen, Überspannungsschutz','050-101 Fangeinrichtungen','050-102 Ableitungen','050-103 Erdungsanlagen',
+  '053-100 Niederspannungsanlagen','053-101 Kabel und Leitungen','053-102 Trassen und Kanäle','053-103 Schalter und Steckdosen',
+  '054-100 Niederspannungsanlagen – Verteilersysteme','054-101 Hauptverteilungen','054-102 Unterverteilungen','054-103 Zählerplätze',
+  '058-100 Leuchten und Lampen','058-101 Innenleuchten','058-102 Außenleuchten','058-103 Leuchtmittel',
+  '059-100 Sicherheitsbeleuchtungsanlagen','059-101 Zentralbatterieanlagen','059-102 Einzelbatterieleuchten','059-103 Rettungszeichenleuchten',
+  '060-100 Elektroakustische Anlagen, Sprechanlagen','060-101 Türsprechanlagen','060-102 Videoanlagen','060-103 Beschallungsanlagen',
+  '061-100 Kommunikationsnetze','061-101 Datenkabel Kupfer','061-102 Lichtwellenleiter','061-103 Netzwerkschränke',
+  '063-100 Gefahrenmeldeanlagen','063-101 Brandmeldeanlagen','063-102 Einbruchmeldeanlagen','063-103 Rauch- und Wärmeabzugsanlagen',
+  '069-100 Aufzüge','069-101 Personenaufzüge','069-102 Lastenaufzüge','069-103 Fahrtreppen',
+  '070-100 Gebäudeautomation','070-101 DDC-Unterstationen','070-102 Feldgeräte','070-103 Gebäudeleittechnik',
+  '075-100 Raumlufttechnische Anlagen','075-101 Zentrale Lüftungsgeräte','075-102 Dezentrale Lüftungsgeräte','075-103 Luftkanalnetze','075-104 Luftdurchlässe',
+  '080-100 Straßen, Wege, Plätze','080-101 Tragschichten','080-102 Asphaltdeckschichten','080-103 Pflasterungen','080-104 Einfassungen und Borde',
+  '081-100 Betonerhaltungsarbeiten','081-101 Untergrundvorbereitung','081-102 Reprofilierung','081-103 Rissinjektion','081-104 Oberflächenschutzsysteme',
+  '084-100 Abbruch-, Rückbau- und Schadstoffsanierungsarbeiten','084-101 Vollabbruch','084-102 Teilabbruch','084-103 Asbestsanierung','084-104 KMF-Sanierung','084-105 Fachgerechte Entsorgung',
+  '089-100 Verkehrssicherungsarbeiten','089-101 Absperrungen','089-102 Beschilderung','089-103 Fahrbahnmarkierung','089-104 Mobile Ampelanlagen'
+];
+function lbNrOptionsHtml(current){
+  const cur = current || 'LB 000 - TLB 000';
+  return ['LB 000 - TLB 000', ...LB_NR_OPTIONS].map(o => {
+    const code = o.split(' ')[0];
+    const bold = /0$/.test(code);
+    return `<option value="${escapeHtml(o)}"${cur===o?' selected':''}${bold?' style="font-weight:700"':''}>${escapeHtml(o)}</option>`;
+  }).join('');
+}
+
+const ART_OPTIONS = ['', 'G', 'A', 'B', 'E', 'Z', 'T', 'S', 'P', 'V', '%'];
 const ART_LABELS = {
   '':'(leer) = Normalposition',
   G:'G = Grundposition',
@@ -605,6 +702,7 @@ const ART_LABELS = {
   T:'T = Textposition',
   S:'S = Stundenlohnarbeiten',
   P:'P = Pauschalposition',
+  V:'V = Vorbereitende Arbeiten und Planung',
   '%':'% = Prozentualer Zuschlag auf Zwischensumme'
 };
 function artOptionsHtml(current){
@@ -627,6 +725,7 @@ function rowHtml(p, ti, pi, t){
     <td class="col-qty"><input type="text" inputmode="decimal" class="mono num-input" data-field="qty" value="${formatMenge(p.qty)}" aria-label="Menge" ${(!p.active || isTextArt(p))?'disabled':''}></td>
     <td class="col-unit"><input type="text" list="unitList" data-field="unit" value="${escapeHtml(p.unit)}" aria-label="Einheit"></td>
     <td class="col-text">
+      <select class="lbnr-select" data-field="lbNr" aria-label="LB- &amp; TLB-Nr. zur Orientierung">${lbNrOptionsHtml(p.lbNr)}</select>
       <div class="kurztext-row">
         <textarea class="text-input" data-field="text" rows="1" aria-label="Kurztext">${escapeHtml(p.text)}</textarea>
         <button type="button" class="details-toggle${(p.details&&p.details.trim())?' has-details':''}" data-action="toggle-details" aria-label="Zusatzinformationen ${p.detailsOpen?'einklappen':'anzeigen'}" aria-expanded="${!!p.detailsOpen}" title="Zusatzinformationen">${p.detailsOpen?'▼':'▶'}</button>
@@ -681,7 +780,7 @@ function titleBlockHtml(t, ti){
           <th class="col-unit">ME</th>
           <th class="col-text">
             <div class="kurztext-head-row">
-              <span>Kurztext</span>
+              <span>LB- & TLB-Nr.: ZUR ORIENTIERUNG / KURZTEXT</span>
               <span class="details-info-icon" title="▶ kennzeichnet Positionen mit hinterlegten Zusatzinformationen">I</span>
             </div>
           </th>
@@ -747,7 +846,17 @@ function renderMeta(){
   document.getElementById('m_date').value = state.meta.date || '';
   document.getElementById('m_project').value = state.meta.project || '';
   vatRateInput.value = state.vatRate;
+  document.getElementById('headerOrgSelect').value = state.headerOrg;
+  document.getElementById('headerProjectSelect').value = state.headerProject;
 }
+document.getElementById('headerOrgSelect').addEventListener('change', e => {
+  state.headerOrg = e.target.value;
+  scheduleSave();
+});
+document.getElementById('headerProjectSelect').addEventListener('change', e => {
+  state.headerProject = e.target.value;
+  scheduleSave();
+});
 
 /* ---------- Calculation ---------- */
 function titleSum(t){
@@ -756,12 +865,11 @@ function titleSum(t){
 function computeDiscount(netto, vatRatePercent){
   const vatFactor = 1 + (Number(vatRatePercent)||0)/100;
   if (netto <= 0 || vatFactor <= 0) return {discount:0, newNetto:netto, vat:0, brutto:0};
-  const approxBrutto = netto * 0.95 * vatFactor;
-  const roundedBrutto = Math.round(approxBrutto/10)*10;
-  const newNetto = roundedBrutto / vatFactor;
+  const newNetto = netto * 0.95;
   const discount = netto - newNetto;
-  const vat = roundedBrutto - newNetto;
-  return {discount, newNetto, vat, brutto:roundedBrutto};
+  const vat = newNetto * (vatFactor - 1);
+  const brutto = newNetto * vatFactor;
+  return {discount, newNetto, vat, brutto};
 }
 function recalcAll(){
   let netto = 0, total = 0, activeCount = 0;
@@ -866,6 +974,7 @@ container.addEventListener('input', e=>{
     else if (field === 'art'){ p.art = e.target.value; p.pctOfSubtotal = (p.art === '%'); }
     else if (field === 'text'){ p.text = e.target.value; }
     else if (field === 'details'){ p.details = e.target.value; }
+    else if (field === 'lbNr'){ p.lbNr = e.target.value; }
     if (field === 'qty' || field === 'price' || field === 'art'){
       const totalCell = posRow.querySelector('[data-role="total"]');
       if (totalCell) totalCell.textContent = positionTotalDisplay(p, t);
@@ -1084,7 +1193,7 @@ function buildPrintDocument(){
         <td>${escapeHtml(p.art)}</td>
         <td class="mono num">${formatMenge(p.qty)}</td>
         <td>${escapeHtml(p.unit)}</td>
-        <td>${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
+        <td>${(p.lbNr && p.lbNr!=='LB 000 - TLB 000') ? `<div class="pt-lbnr">${escapeHtml(p.lbNr)}</div>` : ''}${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
         <td class="mono num">${priceCellValue(p, t)}</td>
         <td class="mono num">${positionTotalPlain(p, t)}</td>
       </tr>`;
@@ -1093,7 +1202,7 @@ function buildPrintDocument(){
       <div class="pt-head"><span class="pt-badge">Titel ${ti+1}</span><h3>${escapeHtml(t.title)}</h3></div>
       ${t.preamble ? `<p class="pt-preamble">${escapeHtml(stripEuro(t.preamble))}</p>` : ''}
       <table class="postbl">
-        <thead><tr><th>OZ</th><th>Art</th><th class="num">Menge</th><th>ME</th><th>Kurztext</th><th class="num">EP</th><th class="num">GP</th></tr></thead>
+        <thead><tr><th>OZ</th><th>Art</th><th class="num">Menge</th><th>ME</th><th>LB- & TLB-Nr.: ZUR ORIENTIERUNG / KURZTEXT</th><th class="num">EP</th><th class="num">GP</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr><td colspan="6"><strong>Titelsumme</strong></td><td class="mono num">${formatMoneyPlain(titleSum(t))}</td></tr></tfoot>
       </table>
@@ -1123,10 +1232,10 @@ function buildPrintDocument(){
   thead th{background:#f0f0f0;font-size:9.5px;text-transform:uppercase;letter-spacing:.04em;}
   table.postbl tr{break-inside:avoid;page-break-inside:avoid;}
   table.postbl td{vertical-align:top;}
-  table.postbl td:nth-child(6), table.postbl td:nth-child(7){vertical-align:bottom;}
+  .pt-lbnr{font-size:9.5px;font-weight:700;color:#00666b;margin-bottom:2px;}
   table.postbl{table-layout:fixed;width:180mm;}
   table.postbl th:nth-child(1), table.postbl td:nth-child(1){width:28mm;}
-  table.postbl th:nth-child(2), table.postbl td:nth-child(2){width:10mm;}
+  table.postbl th:nth-child(2), table.postbl td:nth-child(2){width:10mm;text-align:center;}
   table.postbl th:nth-child(3), table.postbl td:nth-child(3){width:20mm;}
   table.postbl th:nth-child(4), table.postbl td:nth-child(4){width:10mm;}
   table.postbl th:nth-child(5), table.postbl td:nth-child(5){width:62mm;overflow-wrap:break-word;word-break:break-word;hyphens:auto;}
@@ -1182,6 +1291,7 @@ function buildPrintDocument(){
     <p><strong>T</strong> = Textposition / Hinweistext: Diese enthalten keine Preise oder Mengen, sondern dienen rein der Information. Das können technische Vorbemerkungen oder Erläuterungen zu den nachfolgenden Positionen sein.</p>
     <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
     <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
+      <p><strong>V</strong> = Vorbereitende Arbeiten und Planung: Leistungen, die der Vorbereitung, Planung und Projektierung vorausgehender Maßnahmen dienen.</p>
     <p>&nbsp;</p>
     <p><strong>Sonstige Erklärungen</strong></p>
     <p><strong>EP</strong> = Einheitspreis</p>
