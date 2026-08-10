@@ -364,12 +364,14 @@
   <div class="toolbar-inner">
     <div class="toolbar-title">
       <select id="headerOrgSelect" class="header-select" aria-label="Organisation / Auftragnehmer">
+        <option>Mandant</option>
         <option>ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG</option>
         <option>Ingenieurbüro für Hoch-, Tief und Ingenieurbau</option>
         <option>Gert Köhler Diplom-Ingenieur für bautechnische Gesamtplanung</option>
         <option>Test</option>
       </select>
       <select id="headerProjectSelect" class="header-select" aria-label="Projekt">
+        <option>Projekt</option>
         <option>421 ED SolarKraftwerk</option>
         <option>411 SolarGeoVento (Solarkamin)</option>
         <option>Test</option>
@@ -583,8 +585,8 @@ function loadState(){
 }
 let state = loadState() || buildDefaultState();
 if (typeof state.paymentNote !== 'string') state.paymentNote = 'raten';
-if (typeof state.headerOrg !== 'string') state.headerOrg = 'ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG';
-if (typeof state.headerProject !== 'string') state.headerProject = '421 ED SolarKraftwerk';
+if (typeof state.headerOrg !== 'string') state.headerOrg = 'Mandant';
+if (typeof state.headerProject !== 'string') state.headerProject = 'Projekt';
 if (!state.meta.date) state.meta.date = new Date().toISOString().slice(0,10);
 
 /* ---------- DOM refs ---------- */
@@ -1236,6 +1238,9 @@ function buildPrintDocument(){
       <div class="pt-head"><span class="pt-badge">Titel ${ti+1}</span><h3>${escapeHtml(t.title)}</h3></div>
       ${t.preamble ? `<p class="pt-preamble">${escapeHtml(stripEuro(t.preamble))}</p>` : ''}
       <table class="postbl">
+        <colgroup>
+          <col style="width:28mm"><col style="width:10mm"><col style="width:20mm"><col style="width:10mm"><col style="width:62mm"><col style="width:25mm"><col style="width:25mm">
+        </colgroup>
         <thead><tr><th>OZ</th><th>Art</th><th class="num">Menge</th><th>ME</th><th>LB- & TLB-Nr.: ZUR ORIENTIERUNG / KURZTEXT</th><th class="num">EP</th><th class="num">GP</th></tr></thead>
         <tbody>${rows}</tbody>
         <tfoot><tr><td colspan="6"><strong>Titelsumme</strong></td><td class="mono num"><strong>${formatMoneyPlain(titleSum(t))}</strong></td></tr></tfoot>
@@ -1268,18 +1273,15 @@ function buildPrintDocument(){
   table.postbl td{vertical-align:top;}
   .pt-lbnr{font-size:9.5px;font-weight:400;color:#000;margin-bottom:2px;}
   table.postbl{table-layout:fixed;width:180mm;}
-  table.postbl th:nth-child(1), table.postbl td:nth-child(1){width:28mm;}
-  table.postbl th:nth-child(2), table.postbl td:nth-child(2){width:10mm;text-align:center;}
-  table.postbl th:nth-child(3), table.postbl td:nth-child(3){width:20mm;white-space:nowrap;}
-  table.postbl th:nth-child(4), table.postbl td:nth-child(4){width:10mm;}
-  table.postbl th:nth-child(5), table.postbl td:nth-child(5){width:62mm;overflow-wrap:break-word;word-break:break-word;hyphens:auto;}
-  table.postbl th:nth-child(6), table.postbl td:nth-child(6){width:25mm;white-space:nowrap;}
-  table.postbl th:nth-child(7), table.postbl td:nth-child(7){width:25mm;white-space:nowrap;}
+  table.postbl thead th:nth-child(2), table.postbl tbody tr:not(.pt-subtotal) td:nth-child(2){text-align:center;}
+  table.postbl th:nth-child(5), table.postbl td:nth-child(5){overflow-wrap:break-word;word-break:break-word;hyphens:auto;}
+  table.postbl .num{white-space:nowrap;}
   .pt-pos-details{margin-top:3px;font-size:10.5px;color:#555;}
   tfoot td{border-top:1.5px solid #999;border-bottom:none;}
   tr.pt-subtotal td{background:#e6f2f2;font-weight:700;}
   .summary{margin-top:22px;break-inside:avoid;}
-  .totals{margin-top:10px;width:320px;margin-left:auto;font-size:13px;}
+  .summary-titles-table{width:180mm;}
+  .totals{margin-top:10px;width:320px;margin-left:auto;margin-right:5mm;padding-right:8px;font-size:11.5px;}
   .totals div{display:flex;justify-content:space-between;padding:3px 0;}
   .totals .discount-note{display:block;font-size:10.5px;color:#666;padding:6px 0 2px;line-height:1.4;}
   .totals .new-netto{border-top:1px solid #ccc;margin-top:2px;padding-top:6px;}
@@ -1301,7 +1303,7 @@ function buildPrintDocument(){
   ${titlesHtml}
   <div class="summary">
     <h2>Zusammenstellung der Titelsummen</h2>
-    <table><thead><tr><th>Titel</th><th>Bezeichnung</th><th class="num"><strong>Titelsumme</strong></th></tr></thead><tbody>${summaryRows}</tbody></table>
+    <table class="summary-titles-table"><thead><tr><th>Titel</th><th>Bezeichnung</th><th class="num"><strong>Titelsumme</strong></th></tr></thead><tbody>${summaryRows}</tbody></table>
     <div class="totals">
       <div><span>Nettosumme</span><span class="mono">${formatMoneyPlain(netto)}</span></div>
       ${(() => { const n = NOTE_OPTIONS.find(o=>o.key===state.paymentNote); return n ? `<div class="discount-note">${escapeHtml(n.text)}</div>` : ''; })()}
