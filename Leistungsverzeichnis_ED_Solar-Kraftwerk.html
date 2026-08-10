@@ -1194,7 +1194,7 @@ function buildPrintDocument(){
         <td>${escapeHtml(p.art)}</td>
         <td class="mono num">${formatMenge(p.qty)}</td>
         <td>${escapeHtml(p.unit)}</td>
-        <td>${(p.lbNr && p.lbNr!=='LB 000 - TLB 000') ? `<div class="pt-lbnr">${escapeHtml(p.lbNr)}</div>` : ''}${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
+        <td><div class="pt-lbnr">${escapeHtml(p.lbNr || 'LB 000 - TLB 000')}</div>${escapeHtml(stripEuro(p.text))}${(p.details&&p.details.trim()) ? `<div class="pt-pos-details">${escapeHtml(stripEuro(p.details))}</div>` : ''}</td>
         <td class="mono num">${priceCellValue(p, t)}</td>
         <td class="mono num">${positionTotalPlain(p, t)}</td>
       </tr>`;
@@ -1215,8 +1215,8 @@ function buildPrintDocument(){
   return `<!doctype html><html lang="de"><head><meta charset="utf-8"><title>${escapeHtml(state.meta.project || 'ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk')}</title>
 <style>
   *{box-sizing:border-box;}
-  @page{size:A4 portrait;margin:0;}
-  body{font-family:Aptos,"Segoe UI",system-ui,sans-serif;color:#222;margin:10mm 5mm 10mm 20mm;font-size:12px;line-height:1.4;width:185mm;}
+  @page{size:A4 portrait;margin:10mm 5mm 10mm 20mm;}
+  body{font-family:Aptos,"Segoe UI",system-ui,sans-serif;color:#222;margin:0;font-size:12px;line-height:1.4;width:185mm;}
   .mono{font-family:"IBM Plex Mono",Consolas,monospace;}
   .num{text-align:right;}
   h1{font-size:19px;margin:0 0 4px;text-align:left;}
@@ -1237,11 +1237,11 @@ function buildPrintDocument(){
   table.postbl{table-layout:fixed;width:180mm;}
   table.postbl th:nth-child(1), table.postbl td:nth-child(1){width:28mm;}
   table.postbl th:nth-child(2), table.postbl td:nth-child(2){width:10mm;text-align:center;}
-  table.postbl th:nth-child(3), table.postbl td:nth-child(3){width:20mm;}
+  table.postbl th:nth-child(3), table.postbl td:nth-child(3){width:20mm;white-space:nowrap;}
   table.postbl th:nth-child(4), table.postbl td:nth-child(4){width:10mm;}
   table.postbl th:nth-child(5), table.postbl td:nth-child(5){width:62mm;overflow-wrap:break-word;word-break:break-word;hyphens:auto;}
-  table.postbl th:nth-child(6), table.postbl td:nth-child(6){width:25mm;}
-  table.postbl th:nth-child(7), table.postbl td:nth-child(7){width:25mm;}
+  table.postbl th:nth-child(6), table.postbl td:nth-child(6){width:25mm;white-space:nowrap;}
+  table.postbl th:nth-child(7), table.postbl td:nth-child(7){width:25mm;white-space:nowrap;}
   .pt-pos-details{margin-top:3px;font-size:10.5px;color:#555;}
   tfoot td{border-top:1.5px solid #999;border-bottom:none;}
   tr.pt-subtotal td{background:#e6f2f2;font-weight:700;}
@@ -1254,7 +1254,6 @@ function buildPrintDocument(){
   .legend{margin-top:22px;break-inside:avoid;font-size:11.5px;}
   .legend ul{margin:4px 0 8px 18px;padding:0;}
   .legend li{margin-bottom:2px;}
-  @media print{ body{margin:10mm 5mm 10mm 20mm;} }
 </style></head>
 <body>
   <h1>ENERGIE DEZENT e.V. - 421 ED SolarKraftwerk</h1>
