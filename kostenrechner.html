@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude API Kostenrechner</title>
+    <style>
+        .cr-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        @media (max-width: 600px) {
+            .cr-controls { grid-template-columns: 1fr !important; }
+            .cr-cards { grid-template-columns: 1fr !important; }
+        }
+    </style>
+</head>
+<body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background-color:#f8fafc;color:#1e293b;line-height:1.6;margin:0;padding:40px 20px;box-sizing:border-box;">
+    <div class="container" style="max-width:900px;margin:0 auto;background:#ffffff;padding:40px;border-radius:16px;box-shadow:0 10px 25px rgba(0,0,0,0.05);box-sizing:border-box;">
+        <h1 style="text-align:center;font-size:2.2rem;margin-top:0;margin-bottom:30px;color:#0f172a;">Claude API Kostenrechner</h1>
+
+        <div class="cr-controls" style="display:grid;grid-template-columns:1fr 1fr;gap:30px;background:#f1f5f9;padding:30px;border-radius:12px;margin-bottom:40px;box-sizing:border-box;">
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <label for="inputTokens" style="font-weight:600;font-size:1rem;display:flex;justify-content:space-between;box-sizing:border-box;">
+                    <span>Input Token (Millionen)</span>
+                    <span id="inputVal" style="color:#2563eb;font-weight:700;">10</span>
+                </label>
+                <input type="range" id="inputTokens" min="0" max="100" value="10" step="0.5" style="width:100%;cursor:pointer;accent-color:#2563eb;box-sizing:border-box;">
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <label for="outputTokens" style="font-weight:600;font-size:1rem;display:flex;justify-content:space-between;box-sizing:border-box;">
+                    <span>Output Token (Millionen)</span>
+                    <span id="outputVal" style="color:#2563eb;font-weight:700;">2</span>
+                </label>
+                <input type="range" id="outputTokens" min="0" max="100" value="2" step="0.5" style="width:100%;cursor:pointer;accent-color:#2563eb;box-sizing:border-box;">
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:10px;">
+                <label for="caching" style="font-weight:600;font-size:1rem;display:flex;justify-content:space-between;box-sizing:border-box;">
+                    <span>Prompt Caching Anteil</span>
+                    <span id="cachingVal" style="color:#2563eb;font-weight:700;">0%</span>
+                </label>
+                <input type="range" id="caching" min="0" max="100" value="0" step="1" style="width:100%;cursor:pointer;accent-color:#2563eb;box-sizing:border-box;">
+                <div style="font-size:0.8rem;color:#64748b;margin-top:-5px;">Gecachte Inputs kosten nur 10% des Normalpreises.</div>
+            </div>
+
+            <div onclick="document.getElementById('batchApi').click()" style="display:flex;flex-direction:row;align-items:center;gap:10px;grid-column:1 / -1;background:#e0e7ff;padding:15px;border-radius:8px;border:1px solid #c7d2fe;cursor:pointer;box-sizing:border-box;">
+                <input type="checkbox" id="batchApi" onclick="event.stopPropagation()" style="width:20px;height:20px;cursor:pointer;box-sizing:border-box;">
+                <label for="batchApi" style="cursor:pointer;margin:0;font-weight:700;color:#3730a3;font-size:1rem;">Batch API nutzen (50% Rabatt auf alles)</label>
+            </div>
+        </div>
+
+        <div class="cr-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;">
+            <!-- Haiku -->
+            <div style="padding:25px;border-radius:12px;color:#ffffff;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;overflow:hidden;box-sizing:border-box;background:linear-gradient(135deg,#10b981,#059669);">
+                <div style="height:4px;background:rgba(255,255,255,0.5);margin:-25px -25px 15px -25px;"></div>
+                <h2 style="margin:0;font-size:1.5rem;margin-bottom:5px;">Haiku 4.5</h2>
+                <div style="font-size:0.85rem;opacity:0.8;margin-bottom:15px;">Basis: $1 Input / $5 Output</div>
+                <div style="font-size:2.8rem;font-weight:800;margin:15px 0;letter-spacing:-1px;" id="price-haiku">$0.00</div>
+                <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:12px;font-size:0.95rem;display:flex;flex-direction:column;gap:5px;box-sizing:border-box;">
+                    <div style="display:flex;justify-content:space-between;"><span>Input:</span> <strong id="details-in-haiku">$0.00</strong></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Output:</span> <strong id="details-out-haiku">$0.00</strong></div>
+                </div>
+            </div>
+
+            <!-- Sonnet -->
+            <div style="padding:25px;border-radius:12px;color:#ffffff;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;overflow:hidden;box-sizing:border-box;background:linear-gradient(135deg,#3b82f6,#2563eb);">
+                <div style="height:4px;background:rgba(255,255,255,0.5);margin:-25px -25px 15px -25px;"></div>
+                <h2 style="margin:0;font-size:1.5rem;margin-bottom:5px;">Sonnet 4.6</h2>
+                <div style="font-size:0.85rem;opacity:0.8;margin-bottom:15px;">Basis: $3 Input / $15 Output</div>
+                <div style="font-size:2.8rem;font-weight:800;margin:15px 0;letter-spacing:-1px;" id="price-sonnet">$0.00</div>
+                <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:12px;font-size:0.95rem;display:flex;flex-direction:column;gap:5px;box-sizing:border-box;">
+                    <div style="display:flex;justify-content:space-between;"><span>Input:</span> <strong id="details-in-sonnet">$0.00</strong></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Output:</span> <strong id="details-out-sonnet">$0.00</strong></div>
+                </div>
+            </div>
+
+            <!-- Opus -->
+            <div style="padding:25px;border-radius:12px;color:#ffffff;text-align:center;box-shadow:0 4px 6px rgba(0,0,0,0.1);position:relative;overflow:hidden;box-sizing:border-box;background:linear-gradient(135deg,#8b5cf6,#7c3aed);">
+                <div style="height:4px;background:rgba(255,255,255,0.5);margin:-25px -25px 15px -25px;"></div>
+                <h2 style="margin:0;font-size:1.5rem;margin-bottom:5px;">Opus 4.8</h2>
+                <div style="font-size:0.85rem;opacity:0.8;margin-bottom:15px;">Basis: $5 Input / $25 Output</div>
+                <div style="font-size:2.8rem;font-weight:800;margin:15px 0;letter-spacing:-1px;" id="price-opus">$0.00</div>
+                <div style="background:rgba(0,0,0,0.15);border-radius:8px;padding:12px;font-size:0.95rem;display:flex;flex-direction:column;gap:5px;box-sizing:border-box;">
+                    <div style="display:flex;justify-content:space-between;"><span>Input:</span> <strong id="details-in-opus">$0.00</strong></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Output:</span> <strong id="details-out-opus">$0.00</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const models = {
+            haiku: { input: 1.0, output: 5.0 },
+            sonnet: { input: 3.0, output: 15.0 },
+            opus: { input: 5.0, output: 25.0 }
+        };
+
+        const formatCurrency = (num) => {
+            return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        };
+
+        function updateCalculator() {
+            const inputTokens = parseFloat(document.getElementById('inputTokens').value);
+            const outputTokens = parseFloat(document.getElementById('outputTokens').value);
+            const cachingPercent = parseFloat(document.getElementById('caching').value) / 100;
+            const useBatch = document.getElementById('batchApi').checked;
+
+            document.getElementById('inputVal').textContent = inputTokens;
+            document.getElementById('outputVal').textContent = outputTokens;
+            document.getElementById('cachingVal').textContent = Math.round(cachingPercent * 100) + '%';
+
+            Object.keys(models).forEach(key => {
+                const model = models[key];
+
+                // Caching Logik
+                const uncachedInput = inputTokens * (1 - cachingPercent);
+                const cachedInput = inputTokens * cachingPercent;
+
+                let inputCost = (uncachedInput * model.input) + (cachedInput * model.input * 0.1);
+                let outputCost = outputTokens * model.output;
+
+                // Batch Logik
+                if (useBatch) {
+                    inputCost *= 0.5;
+                    outputCost *= 0.5;
+                }
+
+                const totalCost = inputCost + outputCost;
+
+                document.getElementById(`price-${key}`).textContent = formatCurrency(totalCost);
+                document.getElementById(`details-in-${key}`).textContent = formatCurrency(inputCost);
+                document.getElementById(`details-out-${key}`).textContent = formatCurrency(outputCost);
+            });
+        }
+
+        // Event Listener hinzufügen
+        document.getElementById('inputTokens').addEventListener('input', updateCalculator);
+        document.getElementById('outputTokens').addEventListener('input', updateCalculator);
+        document.getElementById('caching').addEventListener('input', updateCalculator);
+        document.getElementById('batchApi').addEventListener('change', updateCalculator);
+
+        // Initiale Berechnung ausführen
+        updateCalculator();
+    </script>
+</body>
+</html>
