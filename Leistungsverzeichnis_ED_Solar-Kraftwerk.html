@@ -413,7 +413,7 @@
         <input type="date" id="m_date" data-meta-field="date">
       </div>
       <div class="field">
-        <label for="m_kostenlabel">Kostenlabel</label>
+        <label for="m_kostenlabel">PV-Kostenlabel</label>
         <select id="m_kostenlabel" data-meta-field="kostenlabel">
           <option value="">Bitte wählen…</option>
           <option value="Angebot">Angebot</option>
@@ -1380,7 +1380,7 @@ function buildPrintDocument(){
     ${state.meta.email ? `<div>${escapeHtml(state.meta.email)}</div>` : ''}
     <div>${escapeHtml(state.meta.address) || ''}</div>
     <div>${escapeHtml(state.meta.cityZip) || ''}</div>
-    ${state.meta.kostenlabel ? `<div>Kostenlabel: ${escapeHtml(state.meta.kostenlabel)}</div>` : ''}
+    ${state.meta.kostenlabel ? `<div>PV-Kostenlabel: ${escapeHtml(state.meta.kostenlabel)}</div>` : ''}
     <div>PV-Anlagenart: ${escapeHtml(state.meta.project) || ''}</div>
     ${state.meta.date ? `<div>Datum der Erstellung: ${formatDeDate(state.meta.date)}</div>` : ''}
     <div>Stand: ${dateStr}</div>
