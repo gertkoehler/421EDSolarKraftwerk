@@ -458,6 +458,7 @@
       <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
       <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
       <p><strong>V</strong> = Vorbereitende Arbeiten und Planung: Leistungen, die der Vorbereitung, Planung und Projektierung vorausgehender Maßnahmen dienen.</p>
+      <p><strong>H</strong> = Hinweistext: Reiner Hinweis ohne Preis oder Menge, dient nur der Information innerhalb der Position.</p>
       <p>&nbsp;</p>
       <p><strong>Sonstige Erklärungen</strong></p>
       <p><strong>EP</strong> = Einheitspreis</p>
@@ -524,7 +525,7 @@ function stripEuro(s){ return String(s||'').replace(/\s*€/g,''); }
 function clone(o){ return JSON.parse(JSON.stringify(o)); }
 const NEP_PLACEHOLDER = '............';
 function isOhneGB(p){ return ['A','B'].includes(p.art||''); }
-function isTextArt(p){ return (p.art||'') === 'T'; }
+function isTextArt(p){ return ['T','H'].includes(p.art||''); }
 function effectivePrice(p, t){
   if (p.pctOfSubtotal && t) return subtotalUpTo(t, p.id) / 100;
   return Number(p.price)||0;
@@ -753,7 +754,7 @@ function tlbOptionsHtml(lbValue, current){
   ).join('');
 }
 
-const ART_OPTIONS = ['', 'G', 'A', 'B', 'E', 'Z', 'T', 'S', 'P', 'V', '%'];
+const ART_OPTIONS = ['', 'G', 'A', 'B', 'E', 'Z', 'T', 'S', 'P', 'V', 'H', '%'];
 const ART_LABELS = {
   '':'(leer) = Normalposition',
   G:'G = Grundposition',
@@ -765,6 +766,7 @@ const ART_LABELS = {
   S:'S = Stundenlohnarbeiten',
   P:'P = Pauschalposition',
   V:'V = Vorbereitende Arbeiten und Planung',
+  H:'H = Hinweistext',
   '%':'% = Prozentualer Zuschlag auf Zwischensumme'
 };
 function artOptionsHtml(current){
@@ -1362,6 +1364,7 @@ function buildPrintDocument(){
     <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
     <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
       <p><strong>V</strong> = Vorbereitende Arbeiten und Planung: Leistungen, die der Vorbereitung, Planung und Projektierung vorausgehender Maßnahmen dienen.</p>
+    <p><strong>H</strong> = Hinweistext: Reiner Hinweis ohne Preis oder Menge, dient nur der Information innerhalb der Position.</p>
     <p>&nbsp;</p>
     <p><strong>Sonstige Erklärungen</strong></p>
     <p><strong>EP</strong> = Einheitspreis</p>
