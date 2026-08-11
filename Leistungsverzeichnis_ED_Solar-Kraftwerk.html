@@ -517,6 +517,10 @@ function formatOZ(titleNum, posIdx){
   const position = String(posIdx*10).padStart(4,'0');
   return `${gewerk}.${titel}.${untertitel}.${position} `;
 }
+function formatOZHint(titleNum){
+  const gewerk = String(titleNum).padStart(2,'0');
+  return `${gewerk}.00.00.xxxx `;
+}
 function parseDeNumber(str){
   if (typeof str !== 'string') return Number(str)||0;
   let s = str.trim();
@@ -803,7 +807,7 @@ function rowHtml(p, ti, pi, t){
   if ((p.art||'') === 'H'){
     return `<tr class="position-row hint-row${p.active?'':' inactive'}" data-pos-id="${p.id}">
       <td class="col-check"><input type="checkbox" data-field="active" ${p.active?'checked':''} aria-label="Position einbeziehen"></td>
-      <td class="col-posnr"></td>
+      <td class="col-posnr mono" data-role="posnr">${formatOZHint(ti+1)}</td>
       <td class="col-art"><select data-field="art" aria-label="Art">${artOptionsHtml(p.art)}</select></td>
       <td class="col-text hint-text" colspan="5">
         <textarea class="text-input" data-field="text" rows="1" placeholder="Technische Vorbemerkung, Erläuterung oder Nachbemerkung zur Position" aria-label="Hinweistext">${escapeHtml(p.text)}</textarea>
@@ -887,7 +891,7 @@ function titleBlockHtml(t, ti){
         <tbody>${(()=>{ let idx=0; return t.positions.map(p=>{
           if (isSubtotalRow(p)) return subtotalRowHtml(p, t);
           const html = rowHtml(p, ti, idx, t);
-          idx++;
+          if ((p.art||'') !== 'H') idx++;
           return html;
         }).join(''); })()}</tbody>
         <tfoot><tr class="title-sum-row">
@@ -1301,9 +1305,9 @@ function buildPrintDocument(){
         </tr>`;
       }
       if ((p.art||'') === 'H'){
-        pidx++;
         return `<tr class="pt-hint">
-          <td colspan="7">${escapeHtml(stripEuro(p.text))}</td>
+          <td class="mono">${formatOZHint(ti+1)}</td>
+          <td colspan="6">${escapeHtml(stripEuro(p.text))}</td>
         </tr>`;
       }
       const pi = pidx++;
