@@ -704,22 +704,22 @@ function buildLbGroups(flatList){
   return groups;
 }
 const LB_GROUPS = buildLbGroups(LB_NR_OPTIONS);
-LB_GROUPS.push(
-  {lb:'054-9120 Unterkonstruktionen - Photovoltaik / Solarthermie (Montageschienen, Dachhaken, Flachdach-Aufständerungen)', tlbs:[
-    '054-8482 Photovoltaikmodule (z. B. monokristalline Module, Glas-Glas/Glas-Folie)',
-    '054-8658 Wechselrichter - Photovoltaik (z. B. Stringwechselrichter, Modulwechselrichter, MPP-Tracker)',
-    '054-9167 Batterieanlagen - Photovoltaik (Heimspeicher und Gewerbespeicher)',
-    '054-9224 Batterie-Wechselrichter AC'
-  ]},
-  {lb:'020-9120 Unterkonstruktionen - Photovoltaik / Solarthermie (Hierüber werden die eigentlichen PV-Dachhaken, Profile und Montageschienen für Aufdach-Anlagen beschrieben)', tlbs:[
-    '020-648 Dachvorarbeiten (Untergrundvorbereitung, Auffütterungen)',
-    '020-195 Deckungen / Bekleidungen - Dachziegel (Hierüber lässt sich das Auf- und Zudecken, Auswechseln von Ziegeln sowie das Eindecken von speziellen Ziegelformen abbilden)',
-    '020-192 Unterkonstruktionen - Lattung (Anpassung oder Neuerstellung der Traglattung, die für Indach-PV-Systeme oder Solardachziegel zwingend passgenau benötigt wird)',
-    '020-8482 Photovoltaikmodule (Hier können Sie über die Beschreibungsmerkmale die „Ausführung Aufstellung/Einbau" auf Indachmontage oder Solardachziegel einstellen)',
-    '020-232 Sicherheitsdachhaken (Nach DIN EN 517)'
-  ]}
-);
 function findLbGroup(prefix){ return LB_GROUPS.find(g=>g.lb.startsWith(prefix+'-100')); }
+findLbGroup('054').tlbs.push(
+  '054-9120 Unterkonstruktionen - Photovoltaik / Solarthermie (Montageschienen, Dachhaken, Flachdach-Aufständerungen)',
+  '054-8482 Photovoltaikmodule (z. B. monokristalline Module, Glas-Glas/Glas-Folie)',
+  '054-8658 Wechselrichter - Photovoltaik (z. B. Stringwechselrichter, Modulwechselrichter, MPP-Tracker)',
+  '054-9167 Batterieanlagen - Photovoltaik (Heimspeicher und Gewerbespeicher)',
+  '054-9224 Batterie-Wechselrichter AC'
+);
+findLbGroup('020').tlbs.push(
+  '020-9120 Unterkonstruktionen - Photovoltaik / Solarthermie (Hierüber werden die eigentlichen PV-Dachhaken, Profile und Montageschienen für Aufdach-Anlagen beschrieben)',
+  '020-648 Dachvorarbeiten (Untergrundvorbereitung, Auffütterungen)',
+  '020-195 Deckungen / Bekleidungen - Dachziegel (Hierüber lässt sich das Auf- und Zudecken, Auswechseln von Ziegeln sowie das Eindecken von speziellen Ziegelformen abbilden)',
+  '020-192 Unterkonstruktionen - Lattung (Anpassung oder Neuerstellung der Traglattung, die für Indach-PV-Systeme oder Solardachziegel zwingend passgenau benötigt wird)',
+  '020-8482 Photovoltaikmodule (Hier können Sie über die Beschreibungsmerkmale die „Ausführung Aufstellung/Einbau" auf Indachmontage oder Solardachziegel einstellen)',
+  '020-232 Sicherheitsdachhaken (Nach DIN EN 517)'
+);
 findLbGroup('053').tlbs.push(
   '053-5389 Leitungen, flexibel – Niederspannung',
   '053-5395 Kabel - Niederspannung',
