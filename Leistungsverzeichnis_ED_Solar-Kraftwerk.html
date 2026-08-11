@@ -454,11 +454,11 @@
       <p><strong>B</strong> = Bedarfsposition: Diese Leistung wird nur ausgeführt, wenn sie während der Bauphase tatsächlich gebraucht und vom Auftraggeber explizit angeordnet wird. Ohne Gesamtbetrag (NEP): Fließt bei der Angebotswertung nicht in die Endsumme ein.</p>
       <p><strong>E</strong> = Eventualposition: Mit Gesamtpreis (mit GP): Fließt bei der Angebotswertung in die Angebotssumme ein, um Bieter besser vergleichen zu können</p>
       <p><strong>Z</strong> = Zulageposition: Eine Position, die nur in Verbindung mit einer anderen Hauptposition existiert. Sie vergütet einen spezifischen Mehraufwand oder eine Erschwernis (z. B. „Zulage für den Aushub von felsigem Boden").</p>
-      <p><strong>T</strong> = Textposition / Hinweistext: Diese enthalten keine Preise oder Mengen, sondern dienen rein der Information. Das können technische Vorbemerkungen oder Erläuterungen zu den nachfolgenden Positionen sein.</p>
+      <p><strong>T</strong> = Textposition: Enthalten weder EP noch GP. EP und GP sind durch Platzhalter ………… zum manuellen Eintrag von Daten bestimmt und haben reinen Informationscharakter.</p>
       <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
       <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
       <p><strong>V</strong> = Vorbereitende Arbeiten und Planung: Leistungen, die der Vorbereitung, Planung und Projektierung vorausgehender Maßnahmen dienen.</p>
-      <p><strong>H</strong> = Hinweistext: Reiner Hinweis ohne Preis oder Menge, dient nur der Information innerhalb der Position.</p>
+      <p><strong>H</strong> = Hinweis: Reiner Hinweis ohne Preis oder Menge. Die Zeile kann dann für technische Vorbemerkungen, Erläuterungen oder Nachbemerkungen zur Position angesetzt werden.</p>
       <p>&nbsp;</p>
       <p><strong>Sonstige Erklärungen</strong></p>
       <p><strong>EP</strong> = Einheitspreis</p>
@@ -766,7 +766,7 @@ const ART_LABELS = {
   S:'S = Stundenlohnarbeiten',
   P:'P = Pauschalposition',
   V:'V = Vorbereitende Arbeiten und Planung',
-  H:'H = Hinweistext',
+  H:'H = Hinweis',
   '%':'% = Prozentualer Zuschlag auf Zwischensumme'
 };
 function artOptionsHtml(current){
@@ -782,6 +782,17 @@ function collapseArtOptions(sel){
 
 /* ---------- Rendering ---------- */
 function rowHtml(p, ti, pi, t){
+  if ((p.art||'') === 'H'){
+    return `<tr class="position-row hint-row${p.active?'':' inactive'}" data-pos-id="${p.id}">
+      <td class="col-check"><input type="checkbox" data-field="active" ${p.active?'checked':''} aria-label="Position einbeziehen"></td>
+      <td class="col-posnr"></td>
+      <td class="col-art"><select data-field="art" aria-label="Art">${artOptionsHtml(p.art)}</select></td>
+      <td class="col-text hint-text" colspan="5">
+        <textarea class="text-input" data-field="text" rows="1" placeholder="Technische Vorbemerkung, Erläuterung oder Nachbemerkung zur Position" aria-label="Hinweistext">${escapeHtml(p.text)}</textarea>
+      </td>
+      <td class="col-del"><button type="button" class="icon-btn" data-action="delete-position" aria-label="Position löschen" title="Position löschen">✕</button></td>
+    </tr>`;
+  }
   return `<tr class="position-row${p.active?'':' inactive'}" data-pos-id="${p.id}">
     <td class="col-check"><input type="checkbox" data-field="active" ${p.active?'checked':''} aria-label="Position einbeziehen"></td>
     <td class="col-posnr mono" data-role="posnr">${formatOZ(ti+1, pi+1)}</td>
@@ -1038,7 +1049,16 @@ container.addEventListener('input', e=>{
     if (field === 'qty'){ p.qty = parseDeNumber(e.target.value); }
     else if (field === 'price'){ p.price = parseDeNumber(e.target.value); }
     else if (field === 'unit'){ p.unit = e.target.value; }
-    else if (field === 'art'){ p.art = e.target.value; p.pctOfSubtotal = (p.art === '%'); }
+    else if (field === 'art'){
+      const wasHint = (p.art||'') === 'H';
+      p.art = e.target.value;
+      p.pctOfSubtotal = (p.art === '%');
+      if (wasHint !== (p.art === 'H')){
+        renderTitles();
+        scheduleSave();
+        return;
+      }
+    }
     else if (field === 'text'){ p.text = e.target.value; }
     else if (field === 'details'){ p.details = e.target.value; }
     else if (field === 'lb'){
@@ -1260,6 +1280,12 @@ function buildPrintDocument(){
           <td class="mono num">${formatMoneyPlain(subtotalUpTo(t, p.id))}</td>
         </tr>`;
       }
+      if ((p.art||'') === 'H'){
+        pidx++;
+        return `<tr class="pt-hint">
+          <td colspan="7">${escapeHtml(stripEuro(p.text))}</td>
+        </tr>`;
+      }
       const pi = pidx++;
       return `<tr>
         <td class="mono">${formatOZ(ti+1, pi+1)}</td>
@@ -1360,11 +1386,11 @@ function buildPrintDocument(){
     <p><strong>B</strong> = Bedarfsposition: Diese Leistung wird nur ausgeführt, wenn sie während der Bauphase tatsächlich gebraucht und vom Auftraggeber explizit angeordnet wird. Ohne Gesamtbetrag (NEP): Fließt bei der Angebotswertung nicht in die Endsumme ein.</p>
     <p><strong>E</strong> = Eventualposition: Mit Gesamtpreis (mit GP): Fließt bei der Angebotswertung in die Angebotssumme ein, um Bieter besser vergleichen zu können</p>
     <p><strong>Z</strong> = Zulageposition: Eine Position, die nur in Verbindung mit einer anderen Hauptposition existiert. Sie vergütet einen spezifischen Mehraufwand oder eine Erschwernis (z. B. „Zulage für den Aushub von felsigem Boden").</p>
-    <p><strong>T</strong> = Textposition / Hinweistext: Diese enthalten keine Preise oder Mengen, sondern dienen rein der Information. Das können technische Vorbemerkungen oder Erläuterungen zu den nachfolgenden Positionen sein.</p>
+    <p><strong>T</strong> = Textposition: Enthalten weder EP noch GP. EP und GP sind durch Platzhalter ………… zum manuellen Eintrag von Daten bestimmt und haben reinen Informationscharakter.</p>
     <p><strong>S</strong> = Stundenlohnarbeiten: Positionen für Leistungen, die nicht nach festen Stückzahlen oder Quadratmetern, sondern nach dem tatsächlichen zeitlichen Aufwand abgerechnet werden.</p>
     <p><strong>P</strong> = Pauschalposition: Eine Leistung, die nicht über detaillierte Einzelmengen, sondern über einen vorab definierten Festpreis abgerechnet wird</p>
       <p><strong>V</strong> = Vorbereitende Arbeiten und Planung: Leistungen, die der Vorbereitung, Planung und Projektierung vorausgehender Maßnahmen dienen.</p>
-    <p><strong>H</strong> = Hinweistext: Reiner Hinweis ohne Preis oder Menge, dient nur der Information innerhalb der Position.</p>
+    <p><strong>H</strong> = Hinweis: Reiner Hinweis ohne Preis oder Menge. Die Zeile kann dann für technische Vorbemerkungen, Erläuterungen oder Nachbemerkungen zur Position angesetzt werden.</p>
     <p>&nbsp;</p>
     <p><strong>Sonstige Erklärungen</strong></p>
     <p><strong>EP</strong> = Einheitspreis</p>
