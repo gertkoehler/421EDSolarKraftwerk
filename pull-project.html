@@ -292,6 +292,21 @@
   var STATUS_LABELS = { offen: "Offen", in_bearbeitung: "In Bearbeitung", pruefung: "Zur Prüfung", erledigt: "Erledigt" };
   var STATUS_ORDER = ["offen", "in_bearbeitung", "pruefung", "erledigt"];
   var PRIORITY_LABELS = { 1: "Hoch", 2: "Mittel", 3: "Niedrig" };
+  var CATEGORY_OPTIONS = [
+    "AI Engineering", "Audio / Voice", "Ausbau", "Bauteile · Elemente · Komponenten",
+    "Eigenversorgung (energetische)", "Einkauf", "Energie", "Finanzamt", "Fremdleistungen",
+    "Geldverkehr", "Haus & Hof", "Hilfs- & Betriebsstoffe", "Information", "Innovation", "IT",
+    "Klima", "Kommunikation", "Konstruktion", "Lebenswerte", "Material", "Mensch",
+    "Mitgliedschaften", "Mobilität", "Personal", "Prozess- & Methoden", "Rohbau",
+    "Social Media", "Technik", "Unterhaltung", "Versorgung", "Weiterbildung",
+    "Werkzeuge · Geräte · Maschinen", "Zentrale Begriffe"
+  ];
+  var ACTION_FIELD_OPTIONS = [
+    "LP 0 Projektvorbereitung", "LP 1 Grundlagenermittlung", "LP 2 Vorplanung",
+    "LP 3 Entwurfsplanung", "LP 4 Genehmigungsplanung", "LP 5 Ausführungs- bzw. Werkplanug",
+    "LP 6 Vorbereitung der Vergabe", "LP 7 Mitwirkung bei der Vergabe", "LP 8 Bauoberleitung",
+    "LP 9 Objektbetreuung", "A", "B"
+  ];
 
   function uid() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -306,11 +321,28 @@
     return new Date().toISOString().slice(0, 10);
   }
 
+  function parseDeadline(iso) {
+    if (!iso) return null;
+    var parts = String(iso).split("T");
+    var d = new Date(parts[0] + "T" + (parts[1] || "00:00") + ":00");
+    return isNaN(d.getTime()) ? null : d;
+  }
+
   function formatDate(iso) {
-    if (!iso) return "–";
-    var d = new Date(iso + "T00:00:00");
-    if (isNaN(d.getTime())) return "–";
-    return d.toLocaleDateString("de-DE");
+    var d = parseDeadline(iso);
+    if (!d) return "–";
+    return d.toLocaleDateString("de-DE") + ", " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr";
+  }
+
+  function mapsRouteUrl(location) {
+    return "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(location);
+  }
+
+  function normalizeUrl(value) {
+    value = String(value || "").trim();
+    if (!value) return "";
+    if (!/^https?:\/\//i.test(value)) value = "https://" + value;
+    return value;
   }
 
   function formatDateTime(ts) {
@@ -392,8 +424,13 @@
     var p = data.projects.find(function (x) { return x.id === id; });
     return p ? p.name : "– kein Projekt –";
   }
+  function taskTitle(id) {
+    var x = data.tasks.find(function (y) { return y.id === id; });
+    return x ? x.title : "–";
+  }
   function isOverdue(task) {
-    return !!task.deadline && task.status !== "erledigt" && task.deadline < todayISO();
+    var d = parseDeadline(task.deadline);
+    return !!d && task.status !== "erledigt" && d < new Date();
   }
   function addHistory(task, text) {
     task.history.push({ ts: Date.now(), text: text, author: currentUser().name });
@@ -666,7 +703,11 @@
 
   function renderTaskFormModal(m) {
     var editing = !!m.taskId;
-    var t = editing ? data.tasks.find(function (x) { return x.id === m.taskId; }) : { title: "", description: "", projectId: "", deadline: "", priority: 2 };
+    var t = editing ? data.tasks.find(function (x) { return x.id === m.taskId; }) : {
+      title: "", description: "", projectId: "", deadline: "", priority: 2,
+      knowledgeBase: "", category: "", keywords: "", childTaskId: "",
+      location: "", url: "", estimatedEffort: "", contacts: "", actionFields: []
+    };
     var html = '<h2>' + (editing ? "Aufgabe bearbeiten" : "Neue Aufgabe") + '</h2>';
     html += '<div class="field"><label>Titel *</label><input type="text" id="f_title" value="' + escapeHtml(t.title) + '"></div>';
     html += '<div class="field"><label>Beschreibung</label><textarea id="f_desc">' + escapeHtml(t.description) + '</textarea></div>';
@@ -682,7 +723,54 @@
     });
     html += '</select></div>';
     html += '</div>';
-    html += '<div class="field"><label>Frist</label><input type="date" id="f_deadline" value="' + (t.deadline || "") + '"></div>';
+    var deadlineParts = (t.deadline || "").split("T");
+    var deadlineDateVal = deadlineParts[0] || "";
+    var deadlineTimeVal = deadlineParts[1] || "08:00";
+    html += '<div class="row2">';
+    html += '<div class="field"><label>Frist (Datum)</label><input type="date" id="f_deadline_date" value="' + deadlineDateVal + '"></div>';
+    html += '<div class="field"><label>Frist (Uhrzeit)</label><input type="time" id="f_deadline_time" value="' + deadlineTimeVal + '"></div>';
+    html += '</div>';
+
+    html += '<div class="row2">';
+    html += '<div class="field"><label>Kategorie</label><select id="f_category"><option value="">– keine Kategorie –</option>';
+    CATEGORY_OPTIONS.forEach(function (cat) {
+      html += '<option value="' + escapeHtml(cat) + '"' + (t.category === cat ? " selected" : "") + '>' + escapeHtml(cat) + '</option>';
+    });
+    html += '</select></div>';
+    html += '<div class="field"><label>Knowledge Base</label><input type="text" id="f_kb" value="' + escapeHtml(t.knowledgeBase || "") + '"></div>';
+    html += '</div>';
+
+    html += '<div class="field"><label>Schlagwörter + Handlungsfelder</label><input type="text" id="f_keywords" value="' + escapeHtml(t.keywords || "") + '" placeholder="Komma-getrennt"></div>';
+
+    html += '<div class="field"><label>Handlungsfelder</label>';
+    html += '<div style="border:1px solid var(--border); border-radius:4px; padding:8px 10px; max-height:180px; overflow-y:auto; display:flex; flex-direction:column; gap:5px; background:var(--surface)">';
+    ACTION_FIELD_OPTIONS.forEach(function (af, i) {
+      var checked = (t.actionFields || []).indexOf(af) !== -1;
+      html += '<label style="display:flex; align-items:center; gap:7px; font-weight:400; font-size:13px; margin:0">';
+      html += '<input type="checkbox" class="f_actionfield" value="' + escapeHtml(af) + '" id="f_actionfield_' + i + '"' + (checked ? " checked" : "") + '>';
+      html += escapeHtml(af) + '</label>';
+    });
+    html += '</div></div>';
+
+    html += '<div class="row2">';
+    html += '<div class="field"><label>Element (untergeordnet)</label><select id="f_child"><option value="">– keine Verknüpfung –</option>';
+    data.tasks.forEach(function (x) {
+      if (editing && x.id === t.id) return;
+      html += '<option value="' + x.id + '"' + (t.childTaskId === x.id ? " selected" : "") + '>' + escapeHtml(x.title) + '</option>';
+    });
+    html += '</select></div>';
+    html += '<div class="field"><label>Ort (Map)</label><input type="text" id="f_location" value="' + escapeHtml(t.location || "") + '" oninput="CbyF.updateLocationLink(this.value)">';
+    html += '<div style="margin-top:4px"><a id="f_location_link" class="btn-ghost" target="_blank" rel="noopener" href="' + (t.location ? mapsRouteUrl(t.location) : "#") + '" style="' + (t.location ? "" : "display:none") + '">Route in Google Maps öffnen</a></div></div>';
+    html += '</div>';
+
+    html += '<div class="row2">';
+    html += '<div class="field"><label>URL</label><input type="text" id="f_url" value="' + escapeHtml(t.url || "") + '" placeholder="https://…" oninput="CbyF.updateUrlLink(this.value)">';
+    html += '<div style="margin-top:4px"><a id="f_url_link" class="btn-ghost" target="_blank" rel="noopener" href="' + (t.url ? normalizeUrl(t.url) : "#") + '" style="' + (t.url ? "" : "display:none") + '">Link öffnen</a></div></div>';
+    html += '<div class="field"><label>Geschätzter Aufwand (Std.)</label><input type="number" id="f_effort" min="0" step="0.5" value="' + (t.estimatedEffort === null || t.estimatedEffort === undefined ? "" : t.estimatedEffort) + '"></div>';
+    html += '</div>';
+
+    html += '<div class="field"><label>Kontakte</label><input type="text" id="f_contacts" value="' + escapeHtml(t.contacts || "") + '" placeholder="Komma-getrennt"></div>';
+
     html += '<div class="modal-actions">';
     html += '<button class="btn" onclick="CbyF.closeModal()">Abbrechen</button>';
     html += '<button class="btn btn-primary" onclick="CbyF.saveTaskForm(' + (editing ? "'" + t.id + "'" : "null") + ')">Speichern</button>';
@@ -702,6 +790,19 @@
     html += '<p>' + escapeHtml(t.description || "– keine Beschreibung –") + '</p>';
     html += '<div class="meta">Frist: <span class="mono' + (isOverdue(t) ? " deadline overdue" : "") + '">' + formatDate(t.deadline) + '</span></div>';
     html += '<div class="meta">Bearbeiter: ' + escapeHtml(t.assigneeId ? userName(t.assigneeId) : "– offen –") + '</div>';
+    if (t.category) html += '<div class="meta">Kategorie: ' + escapeHtml(t.category) + '</div>';
+    if (t.knowledgeBase) html += '<div class="meta">Knowledge Base: ' + escapeHtml(t.knowledgeBase) + '</div>';
+    if (t.keywords) html += '<div class="meta">Schlagwörter + Handlungsfelder: ' + escapeHtml(t.keywords) + '</div>';
+    if (t.actionFields && t.actionFields.length) {
+      html += '<div class="meta">Handlungsfelder: ';
+      t.actionFields.forEach(function (af) { html += '<span class="badge">' + escapeHtml(af) + '</span>'; });
+      html += '</div>';
+    }
+    if (t.childTaskId) html += '<div class="meta">Element (untergeordnet): ' + escapeHtml(taskTitle(t.childTaskId)) + '</div>';
+    if (t.location) html += '<div class="meta">Ort: ' + escapeHtml(t.location) + ' &middot; <a href="' + mapsRouteUrl(t.location) + '" target="_blank" rel="noopener">Route in Google Maps öffnen</a></div>';
+    if (t.url) html += '<div class="meta">URL: <a href="' + escapeHtml(normalizeUrl(t.url)) + '" target="_blank" rel="noopener">' + escapeHtml(t.url) + '</a></div>';
+    if (t.estimatedEffort !== null && t.estimatedEffort !== undefined && t.estimatedEffort !== "") html += '<div class="meta">Geschätzter Aufwand: <span class="mono">' + formatNumber(t.estimatedEffort) + '</span> Std.</div>';
+    if (t.contacts) html += '<div class="meta">Kontakte: ' + escapeHtml(t.contacts) + '</div>';
 
     if (t.assigneeId === currentUser().id && t.status === "in_bearbeitung") {
       html += '<div class="field"><label>Fortschritt: <span id="progressVal" class="mono">' + t.progress + '</span> %</label>';
@@ -763,22 +864,66 @@
     openProjectForm: function (projectId) { ui.modal = { type: "projectForm", projectId: projectId || null, focusId: "p_name" }; render(); },
     closeModal: function () { ui.modal = null; render(); },
 
+    updateLocationLink: function (value) {
+      var link = document.getElementById("f_location_link");
+      if (!link) return;
+      value = value.trim();
+      if (value) {
+        link.href = mapsRouteUrl(value);
+        link.style.display = "";
+      } else {
+        link.style.display = "none";
+      }
+    },
+
+    updateUrlLink: function (value) {
+      var link = document.getElementById("f_url_link");
+      if (!link) return;
+      var normalized = normalizeUrl(value);
+      if (normalized) {
+        link.href = normalized;
+        link.style.display = "";
+      } else {
+        link.style.display = "none";
+      }
+    },
+
     saveTaskForm: function (taskId) {
       var title = document.getElementById("f_title").value.trim();
       if (!title) { alert("Bitte einen Titel angeben."); return; }
       var desc = document.getElementById("f_desc").value.trim();
       var projectId = document.getElementById("f_project").value || null;
       var priority = parseInt(document.getElementById("f_priority").value, 10);
-      var deadline = document.getElementById("f_deadline").value || null;
+      var deadlineDate = document.getElementById("f_deadline_date").value;
+      var deadlineTime = document.getElementById("f_deadline_time").value || "08:00";
+      var deadline = deadlineDate ? (deadlineDate + "T" + deadlineTime) : null;
+
+      var category = document.getElementById("f_category").value.trim();
+      var knowledgeBase = document.getElementById("f_kb").value.trim();
+      var keywords = document.getElementById("f_keywords").value.trim();
+      var actionFields = [];
+      document.querySelectorAll(".f_actionfield:checked").forEach(function (cb) { actionFields.push(cb.value); });
+      var childTaskId = document.getElementById("f_child").value || null;
+      var location = document.getElementById("f_location").value.trim();
+      var url = document.getElementById("f_url").value.trim();
+      var effortRaw = document.getElementById("f_effort").value;
+      var estimatedEffort = effortRaw === "" ? null : parseFloat(effortRaw);
+      var contacts = document.getElementById("f_contacts").value.trim();
 
       if (taskId) {
         var t = data.tasks.find(function (x) { return x.id === taskId; });
         t.title = title; t.description = desc; t.projectId = projectId; t.priority = priority; t.deadline = deadline;
+        t.category = category; t.knowledgeBase = knowledgeBase; t.keywords = keywords; t.childTaskId = childTaskId;
+        t.location = location; t.url = url; t.estimatedEffort = estimatedEffort; t.contacts = contacts;
+        t.actionFields = actionFields;
         addHistory(t, "Aufgabe bearbeitet");
       } else {
         data.tasks.push({
           id: uid(), title: title, description: desc, projectId: projectId, deadline: deadline,
           priority: priority, status: "offen", assigneeId: null, progress: 0,
+          category: category, knowledgeBase: knowledgeBase, keywords: keywords, childTaskId: childTaskId,
+          location: location, url: url, estimatedEffort: estimatedEffort, contacts: contacts,
+          actionFields: actionFields,
           notes: [], history: [{ ts: Date.now(), text: "Angelegt", author: currentUser().name }]
         });
       }
