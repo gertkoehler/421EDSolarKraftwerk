@@ -350,8 +350,23 @@
   ];
   var ORG_CONTEXT_OPTIONS = [
     "Gert Köhler, Dipl.-Ing. für bautechnische Gesamtplanung",
-    "Ing.-Büro für Hoch-, Tief- und Ingenieurbau",
-    "ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG"
+    "IB Köhler - Ing.-Büro für Hoch-, Tief- und Ingenieurbau",
+    "ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG",
+    "INGENIEURBÜRO HEUER PARTNERSCHAFT mbB",
+    "innova GmbH Handelsgesellschaft für Energieanlagen und Umwelttechnik",
+    "BV Small Vertical Living · Rostock",
+    "BV BAUeinSPARER-Haus · Siggelkow"
+  ];
+  var FUNKTION_OPTIONS = [
+    "Bauherr",
+    "Bauherr, Controller",
+    "Bauherrin",
+    "Bauherrin, federführend",
+    "Bauoberleiter",
+    "Büroinhaberin",
+    "Büroinhaber",
+    "Geschäftsführer",
+    "AI Engineer Accelerator"
   ];
   var SCHLAGWORT_OPTIONS = [
     "1Q", "298", "2Q", "3D CAD", "3Q", "48V Batterie", "4mCAD", "4Q", "7DIM",
@@ -535,13 +550,34 @@
     ].map(function (name) { return { id: uid(), name: name, status: "aktiv" }; });
   }
 
+  function inferRoleFromFunktion(funktion) {
+    var leitungsfunktionen = ["Bauoberleiter", "Büroinhaberin", "Büroinhaber", "Geschäftsführer", "AI Engineer Accelerator"];
+    return leitungsfunktionen.indexOf(funktion) !== -1 ? "PL" : "MA";
+  }
+
+  function defaultUsers() {
+    return [
+      { seedKey: "koehler-gert", name: "Köhler Gert", funktion: "AI Engineer Accelerator" },
+      { seedKey: "hentschel-peter", name: "Hentschel Peter", funktion: "Geschäftsführer" },
+      { seedKey: "heuer-baerbel", name: "Heuer Bärbel, Dipl.-Ing.", funktion: "Büroinhaberin" },
+      { seedKey: "heuer-michael", name: "Heuer Michael, M. Eng.", funktion: "Büroinhaberin" },
+      { seedKey: "hoffmann-sebastian", name: "Hoffmann Sebastian", funktion: "Bauherr, Controller" },
+      { seedKey: "mentzel-merle", name: "Mentzel Merle", funktion: "Bauherrin" },
+      { seedKey: "mentzel-tillman", name: "Mentzel Tillman", funktion: "Bauherr" },
+      { seedKey: "menzel-johann", name: "Mentzel Johan Otto", funktion: "Bauoberleiter" }
+    ].map(function (u) {
+      return { seedKey: u.seedKey, name: u.name, funktion: u.funktion, role: inferRoleFromFunktion(u.funktion) };
+    });
+  }
+
   function seedData() {
-    var u1 = uid();
+    var users = defaultUsers().map(function (u) {
+      return { id: uid(), seedKey: u.seedKey, name: u.name, funktion: u.funktion, role: u.role };
+    });
+    var gert = users.filter(function (u) { return u.seedKey === "koehler-gert"; })[0];
     return {
-      currentUserId: u1,
-      users: [
-        { id: u1, name: "Gert Köhler", role: "PL" }
-      ],
+      currentUserId: gert.id,
+      users: users,
       projects: defaultProjects(),
       tasks: []
     };
@@ -555,6 +591,34 @@
       var parsed = JSON.parse(raw);
       if (!parsed || !parsed.users || !parsed.users.length) return seedData();
       if (!parsed.projects || !parsed.projects.length) parsed.projects = defaultProjects();
+      var legacyNames = {
+        "koehler-gert": ["Gert Köhler", "Köhler Gert, AI Engineer Accelerator"],
+        "hentschel-peter": ["Peter Hentschel, Geschäftsführer", "Hentschel Peter, Geschäftsführer"],
+        "heuer-baerbel": ["Bärbel Heuer, Dipl.-Ing., Büroinhaberin", "Heuer Bärbel, Dipl.-Ing., Büroinhaberin"],
+        "heuer-michael": ["Michael Heuer, M. Eng., Büroinhaberin", "Heuer Michael, M. Eng., Büroinhaberin"],
+        "hoffmann-sebastian": ["Sebastian Hoffmann, Bauherr · Controller", "Hoffmann Sebastian, Bauherr · Controller"],
+        "mentzel-merle": ["Mentzel Merle, Bauherrin"],
+        "mentzel-tillman": ["Mentzel Tillman, Bauherr"],
+        "menzel-johann": ["Mentzel Johan Otto, Bauoberleitung"]
+      };
+      defaultUsers().forEach(function (def) {
+        var existing = parsed.users.filter(function (u) { return u.seedKey === def.seedKey; })[0];
+        if (!existing && legacyNames[def.seedKey]) {
+          existing = parsed.users.filter(function (u) {
+            return !u.seedKey && legacyNames[def.seedKey].indexOf(u.name) !== -1;
+          })[0];
+        }
+        if (existing) {
+          existing.seedKey = def.seedKey;
+          if (!existing.edited) {
+            existing.name = def.name;
+            existing.funktion = def.funktion;
+            existing.role = def.role;
+          }
+        } else {
+          parsed.users.push({ id: uid(), seedKey: def.seedKey, name: def.name, funktion: def.funktion, role: def.role });
+        }
+      });
       return parsed;
     } catch (e) {
       console.error("Konnte gespeicherte Daten nicht laden, starte neu.", e);
@@ -851,9 +915,10 @@
     html += '</div>';
 
     html += '<div class="section-title">Benutzerverwaltung</div>';
-    html += '<table class="admin-table"><thead><tr><th>Name</th><th>Rolle</th><th></th></tr></thead><tbody>';
+    html += '<table class="admin-table"><thead><tr><th>Name</th><th>Funktion</th><th></th></tr></thead><tbody>';
     data.users.forEach(function (u) {
-      html += '<tr><td>' + escapeHtml(u.name) + '</td><td>' + (u.role === "PL" ? "Projektleiter" : "Mitarbeiter") + '</td><td>';
+      html += '<tr><td>' + escapeHtml(u.name) + '</td><td>' + escapeHtml(u.funktion || "–") + '</td><td>';
+      html += '<button class="btn btn-sm" onclick="CbyF.openUserForm(\'' + u.id + '\')">Bearbeiten</button> ';
       html += '<button class="btn btn-sm" onclick="CbyF.deleteUser(\'' + u.id + '\')">Entfernen</button>';
       html += '</td></tr>';
     });
@@ -862,7 +927,9 @@
     html += '<div class="section-title">Neuen Benutzer anlegen</div>';
     html += '<div class="filter-bar">';
     html += '<input type="text" id="newUserName" placeholder="Name">';
-    html += '<select id="newUserRole"><option value="MA">Mitarbeiter</option><option value="PL">Projektleiter</option></select>';
+    html += '<select id="newUserFunktion"><option value="">– keine Funktion –</option>';
+    FUNKTION_OPTIONS.forEach(function (f) { html += '<option value="' + escapeHtml(f) + '">' + escapeHtml(f) + '</option>'; });
+    html += '</select>';
     html += '<button class="btn btn-primary" onclick="CbyF.addUser()">Hinzufügen</button>';
     html += '</div>';
     return html;
@@ -877,6 +944,7 @@
     if (m.type === "taskForm") html += renderTaskFormModal(m);
     else if (m.type === "taskDetail") html += renderTaskDetailModal(m);
     else if (m.type === "projectForm") html += renderProjectFormModal(m);
+    else if (m.type === "userForm") html += renderUserFormModal(m);
 
     html += '</div></div>';
     return html;
@@ -1024,6 +1092,23 @@
     return html;
   }
 
+  function renderUserFormModal(m) {
+    var u = data.users.find(function (x) { return x.id === m.userId; });
+    if (!u) return "<p>Benutzer nicht gefunden.</p>";
+    var html = '<h2>Benutzer bearbeiten</h2>';
+    html += '<div class="field"><label>Name *</label><input type="text" id="u_name" value="' + escapeHtml(u.name) + '"></div>';
+    html += '<div class="field"><label>Funktion</label><select id="u_funktion"><option value="">– keine Funktion –</option>';
+    FUNKTION_OPTIONS.forEach(function (f) {
+      html += '<option value="' + escapeHtml(f) + '"' + (u.funktion === f ? " selected" : "") + '>' + escapeHtml(f) + '</option>';
+    });
+    html += '</select></div>';
+    html += '<div class="modal-actions">';
+    html += '<button class="btn" onclick="CbyF.closeModal()">Abbrechen</button>';
+    html += '<button class="btn btn-primary" onclick="CbyF.saveUserForm(\'' + u.id + '\')">Speichern</button>';
+    html += '</div>';
+    return html;
+  }
+
   // ---------- Actions ----------
 
   var CbyF = {
@@ -1041,6 +1126,7 @@
     openTaskForm: function (taskId) { ui.modal = { type: "taskForm", taskId: taskId || null, focusId: "f_title" }; render(); },
     openTaskDetail: function (taskId) { ui.modal = { type: "taskDetail", taskId: taskId }; render(); },
     openProjectForm: function (projectId) { ui.modal = { type: "projectForm", projectId: projectId || null, focusId: "p_name" }; render(); },
+    openUserForm: function (userId) { ui.modal = { type: "userForm", userId: userId, focusId: "u_name" }; render(); },
     closeModal: function () { ui.modal = null; render(); },
 
     updateLocationLink: function (value) {
@@ -1192,11 +1278,21 @@
       render();
     },
 
+    saveUserForm: function (userId) {
+      var name = document.getElementById("u_name").value.trim();
+      if (!name) { alert("Bitte einen Namen angeben."); return; }
+      var funktion = document.getElementById("u_funktion").value;
+      var u = data.users.find(function (x) { return x.id === userId; });
+      u.name = name; u.funktion = funktion; u.role = inferRoleFromFunktion(funktion);
+      if (u.seedKey) u.edited = true;
+      saveData(); ui.modal = null; render();
+    },
+
     addUser: function () {
       var name = document.getElementById("newUserName").value.trim();
-      var role = document.getElementById("newUserRole").value;
+      var funktion = document.getElementById("newUserFunktion").value;
       if (!name) { alert("Bitte einen Namen angeben."); return; }
-      data.users.push({ id: uid(), name: name, role: role });
+      data.users.push({ id: uid(), name: name, funktion: funktion, role: inferRoleFromFunktion(funktion) });
       saveData(); render();
     },
     deleteUser: function (id) {
