@@ -535,19 +535,24 @@
     }
   })();
 
-  function defaultProjects() {
+  function defaultProjectNames() {
     return [
       "421 ED SolarKraftwerk",
       "422 Kühlung EFH 48V",
       "423 PV-Freiflächenanlagen (gebäudeunabhängige Solaranlagen)",
       "424 Pull-Project (Task- und Feedback-Modul (MVP))",
       "504 dasFunktionshaus - Waldwiesenhof",
+      "541 VZ Verbraucherzentrale",
       "556 Hofhäuser Burghofwiese",
       "557 »Golden Ratio«",
       "561 Small Vertical Living · Rostock",
       "562 BAUeinSPARER-HAUS",
       "564 Modulare Baukörper in CLT für Kompaktstationen (Kaysen, Türkei)"
-    ].map(function (name) { return { id: uid(), name: name, status: "aktiv" }; });
+    ];
+  }
+
+  function defaultProjects() {
+    return defaultProjectNames().map(function (name) { return { id: uid(), name: name, status: "aktiv" }; });
   }
 
   function inferRoleFromFunktion(funktion) {
@@ -590,7 +595,14 @@
       if (!raw) return seedData();
       var parsed = JSON.parse(raw);
       if (!parsed || !parsed.users || !parsed.users.length) return seedData();
-      if (!parsed.projects || !parsed.projects.length) parsed.projects = defaultProjects();
+      if (!parsed.projects || !parsed.projects.length) {
+        parsed.projects = defaultProjects();
+      } else {
+        var existingProjectNames = parsed.projects.map(function (p) { return p.name; });
+        defaultProjectNames().forEach(function (name) {
+          if (existingProjectNames.indexOf(name) === -1) parsed.projects.push({ id: uid(), name: name, status: "aktiv" });
+        });
+      }
       var legacyNames = {
         "koehler-gert": ["Gert Köhler", "Köhler Gert, AI Engineer Accelerator"],
         "hentschel-peter": ["Peter Hentschel, Geschäftsführer", "Hentschel Peter, Geschäftsführer"],
@@ -997,10 +1009,11 @@
     html += '</div>';
 
     html += '<div class="row2">';
-    html += '<div class="field"><label>Schlagwörter</label><input type="text" id="f_keywords" list="schlagwortListe" value="' + escapeHtml(t.keywords || "") + '" placeholder="Komma-getrennt, Vorschläge per Eingabe"></div>';
-    html += '<datalist id="schlagwortListe">';
-    SCHLAGWORT_OPTIONS.forEach(function (sw) { html += '<option value="' + escapeHtml(sw) + '">'; });
-    html += '</datalist>';
+    html += '<div class="field"><label>Schlagwörter</label><select id="f_keywords"><option value="">– kein Schlagwort –</option>';
+    SCHLAGWORT_OPTIONS.forEach(function (sw) {
+      html += '<option value="' + escapeHtml(sw) + '"' + (t.keywords === sw ? " selected" : "") + '>' + escapeHtml(sw) + '</option>';
+    });
+    html += '</select></div>';
     html += '<div class="field"><label>Handlungsfelder</label><select id="f_action_field"><option value="">– keine Auswahl –</option>';
     ACTION_FIELD_OPTIONS.forEach(function (af) {
       html += '<option value="' + escapeHtml(af) + '"' + (t.actionField === af ? " selected" : "") + '>' + escapeHtml(af) + '</option>';
