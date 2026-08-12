@@ -1017,7 +1017,7 @@
     html += '</div>';
 
     html += '<div class="row2">';
-    html += '<div class="field"><label>Kontakte</label><select id="f_contacts"><option value="">– kein Kontakt –</option>';
+    html += '<div class="field"><label>Kollege</label><select id="f_contacts"><option value="">– kein Kollege –</option>';
     data.users.forEach(function (u) {
       html += '<option value="' + u.id + '"' + (t.contactId === u.id ? " selected" : "") + '>' + escapeHtml(u.name) + '</option>';
     });
@@ -1103,7 +1103,7 @@
     if (t.location) html += '<div class="meta">Ort: ' + escapeHtml(t.location) + ' &middot; <a href="' + mapsRouteUrl(t.location) + '" target="_blank" rel="noopener">Route in Google Maps öffnen</a></div>';
     if (t.url) html += '<div class="meta">URL: <a href="' + escapeHtml(normalizeUrl(t.url)) + '" target="_blank" rel="noopener">' + escapeHtml(t.url) + '</a></div>';
     if (t.estimatedEffort !== null && t.estimatedEffort !== undefined && t.estimatedEffort !== "") html += '<div class="meta">Geschätzter Aufwand: <span class="mono">' + formatNumber(t.estimatedEffort) + '</span> Std.</div>';
-    if (t.contactId) html += '<div class="meta">Kontakte: ' + escapeHtml(userName(t.contactId)) + '</div>';
+    if (t.contactId) html += '<div class="meta">Kollege: ' + escapeHtml(userName(t.contactId)) + '</div>';
 
     if (t.assigneeId === currentUser().id && t.status === "in_bearbeitung") {
       html += '<div class="field"><label>Fortschritt: <span id="progressVal" class="mono">' + t.progress + '</span> %</label>';
