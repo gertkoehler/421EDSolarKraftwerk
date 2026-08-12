@@ -56,25 +56,74 @@
   a { color: var(--accent-strong); }
   :focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
 
+  .shell {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  .shell > .logo-tile { grid-column: 1; width: 72px; height: 72px; margin: 12px 20px 8px auto; }
+  .shell > header.app-header { grid-column: 1; }
+  .shell > nav.tabs { grid-column: 1; }
+  .shell > main { grid-column: 1; }
+
+  .logo-tile {
+    background: var(--accent);
+    color: var(--text-on-accent);
+    border-radius: 6px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6px;
+    overflow: hidden;
+  }
+  .logo-tile .logo-name {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--text-on-accent);
+  }
+  .logo-tile .logo-tagline {
+    font-size: 7.5px;
+    font-weight: 400;
+    color: var(--text-on-accent);
+    opacity: 0.85;
+    margin-top: 5px;
+    line-height: 1.25;
+  }
+
   header.app-header {
     background: var(--accent);
     color: var(--text-on-accent);
-    padding: 14px 20px;
+    box-sizing: border-box;
+    padding: 10px 20px;
     display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 10px;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+  }
+  select.org-select {
+    max-width: 100%;
+    padding: 5px 8px;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.5);
+    font-family: inherit;
+    font-size: 12px;
+    background: rgb(0,132,138);
+    color: #FFFFFF;
+  }
+  .header-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
   }
   header.app-header h1 {
     font-size: 18px;
     margin: 0;
     font-weight: 600;
-  }
-  header.app-header .sub {
-    font-size: 12px;
-    opacity: 0.85;
-    font-weight: 400;
   }
   .user-switch {
     display: flex;
@@ -85,45 +134,31 @@
   .user-switch select {
     padding: 5px 8px;
     border-radius: 4px;
-    border: none;
+    border: 1px solid rgba(255,255,255,0.5);
     font-family: inherit;
+    background: rgb(0,132,138);
+    color: #FFFFFF;
   }
-  .role-badge {
-    background: rgba(255,255,255,0.22);
-    padding: 3px 9px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 600;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    flex-wrap: wrap;
-  }
-  .logo-mark {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    line-height: 1.02;
-    padding-left: 16px;
-    border-left: 1px solid rgba(255,255,255,0.35);
-  }
-  .logo-mark .logo-name {
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    color: var(--text-on-accent);
-    white-space: nowrap;
-  }
-  .logo-mark .logo-tagline {
-    font-size: 10px;
-    font-weight: 400;
-    color: var(--text-on-accent);
-    opacity: 0.85;
-    margin-top: 3px;
-    white-space: nowrap;
+  /* Desktop: Logo als eigenes Quadrat auf Header-Höhe, rechtsbündig, mit schmalem weißen Spalt zum Header. */
+  @media (min-width: 760px) {
+    .shell {
+      grid-template-columns: 1fr auto;
+      column-gap: 6px;
+      align-items: stretch;
+    }
+    .shell > header.app-header { grid-column: 1; grid-row: 1; }
+    .shell > .logo-tile {
+      grid-column: 2;
+      grid-row: 1;
+      width: auto;
+      height: auto;
+      aspect-ratio: 1 / 1;
+      margin: 0;
+    }
+    .shell > nav.tabs { grid-column: 1 / -1; grid-row: 2; }
+    .shell > main { grid-column: 1 / -1; grid-row: 3; }
+    .logo-tile .logo-name { font-size: 13px; }
+    .logo-tile .logo-tagline { font-size: 8px; }
   }
 
   nav.tabs {
@@ -339,7 +374,13 @@
     "A Organisation, Information, Koordination und Dokumentation",
     "B Qualitäten und Quantitäten",
     "C Kosten · Finanzierung · Bankverbindungen",
-    "D Termine, Kapazitäten und Logistik"
+    "D Termine, Kapazitäten und Logistik",
+    "E Vertragswesen"
+  ];
+  var ORG_CONTEXT_OPTIONS = [
+    "Gert Köhler, Dipl.-Ing. für bautechnische Gesamtplanung",
+    "Ing.-Büro für Hoch-, Tief- und Ingenieurbau",
+    "ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG"
   ];
 
   function uid() {
@@ -456,7 +497,8 @@
   var ui = {
     tab: "pool",
     filters: { status: "alle", projectId: "alle", assigneeId: "alle", overdueOnly: false, search: "" },
-    modal: null
+    modal: null,
+    orgContext: ORG_CONTEXT_OPTIONS[0]
   };
 
   function currentUser() {
@@ -494,24 +536,32 @@
   function render() {
     var u = currentUser();
     var html = "";
+    html += '<div class="shell">';
+
+    html += '<div class="logo-tile"><span class="logo-name">Gert Köhler</span><span class="logo-tagline">… kein Ding ohne Ing</span></div>';
+
     html += '<header class="app-header">';
-    html += '<div><h1>Pull-Project</h1><div class="sub">Aufgaben-Pool im Pull-Prinzip &middot; Ingenieurbüro Köhler</div></div>';
-    html += '<div class="header-right">';
-    html += '<div class="user-switch">Angemeldet als';
+    html += '<h1>Task- und Feedback-Modul &middot; Pull-Projekt</h1>';
+    html += '<div class="header-row">';
+    html += '<div class="user-switch">';
     html += '<select id="userSwitch" onchange="CbyF.switchUser(this.value)">';
     data.users.forEach(function (usr) {
       html += '<option value="' + usr.id + '"' + (usr.id === u.id ? " selected" : "") + '>' + escapeHtml(usr.name) + '</option>';
     });
     html += '</select>';
-    html += '<span class="role-badge">' + (u.role === "PL" ? "Projektleiter" : "Mitarbeiter") + '</span>';
     html += '</div>';
-    html += '<div class="logo-mark"><span class="logo-name">Gert Köhler</span><span class="logo-tagline">… kein Ding ohne Ing</span></div>';
-    html += '</div></header>';
+    html += '<select class="org-select" id="orgContext" onchange="CbyF.setOrgContext(this.value)">';
+    ORG_CONTEXT_OPTIONS.forEach(function (opt) {
+      html += '<option value="' + escapeHtml(opt) + '"' + (ui.orgContext === opt ? " selected" : "") + '>' + escapeHtml(opt) + '</option>';
+    });
+    html += '</select>';
+    html += '</div>';
+    html += '</header>';
 
     html += '<nav class="tabs">';
-    html += tabBtn("pool", "Aufgaben-Pool");
+    html += tabBtn("pool", "Action Points");
     html += tabBtn("projekte", "Projekte");
-    if (isPL()) html += tabBtn("verwaltung", "Verwaltung");
+    if (isPL()) html += tabBtn("verwaltung", "Admin");
     html += '</nav>';
 
     html += '<main>';
@@ -519,6 +569,8 @@
     else if (ui.tab === "projekte") html += renderProjectsView();
     else if (ui.tab === "verwaltung" && isPL()) html += renderAdminView();
     html += '</main>';
+
+    html += '</div>';
 
     if (ui.modal) html += renderModal();
 
@@ -899,6 +951,8 @@
     setTab: function (tab) { ui.tab = tab; render(); },
 
     switchUser: function (id) { data.currentUserId = id; saveData(); render(); },
+
+    setOrgContext: function (value) { ui.orgContext = value; render(); },
 
     updateFilter: function (key, value) {
       ui.filters[key] = value;
