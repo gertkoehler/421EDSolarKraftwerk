@@ -56,52 +56,21 @@
   a { color: var(--accent-strong); }
   :focus-visible { outline: 2px solid var(--accent-strong); outline-offset: 2px; }
 
-  .shell {
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-  .shell > .logo-tile { grid-column: 1; width: 72px; height: 72px; margin: 12px 20px 8px auto; }
-  .shell > header.app-header { grid-column: 1; }
-  .shell > nav.tabs { grid-column: 1; }
-  .shell > main { grid-column: 1; }
-
-  .logo-tile {
-    background: var(--accent);
-    color: var(--text-on-accent);
-    border-radius: 6px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 6px;
-    overflow: hidden;
-  }
-  .logo-tile .logo-name {
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.15;
-    color: var(--text-on-accent);
-  }
-  .logo-tile .logo-tagline {
-    font-size: 7.5px;
-    font-weight: 400;
-    color: var(--text-on-accent);
-    opacity: 0.85;
-    margin-top: 5px;
-    line-height: 1.25;
-  }
-
   header.app-header {
     background: var(--accent);
     color: var(--text-on-accent);
     box-sizing: border-box;
     padding: 10px 20px;
     display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .header-left {
+    display: flex;
     flex-direction: column;
-    justify-content: center;
     gap: 6px;
   }
   select.org-select {
@@ -139,26 +108,28 @@
     background: rgb(0,132,138);
     color: #FFFFFF;
   }
-  /* Desktop: Logo als eigenes Quadrat auf Header-Höhe, rechtsbündig, mit schmalem weißen Spalt zum Header. */
-  @media (min-width: 760px) {
-    .shell {
-      grid-template-columns: 1fr auto;
-      column-gap: 6px;
-      align-items: stretch;
-    }
-    .shell > header.app-header { grid-column: 1; grid-row: 1; }
-    .shell > .logo-tile {
-      grid-column: 2;
-      grid-row: 1;
-      width: auto;
-      height: auto;
-      aspect-ratio: 1 / 1;
-      margin: 0;
-    }
-    .shell > nav.tabs { grid-column: 1 / -1; grid-row: 2; }
-    .shell > main { grid-column: 1 / -1; grid-row: 3; }
-    .logo-tile .logo-name { font-size: 13px; }
-    .logo-tile .logo-tagline { font-size: 8px; }
+  .wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    line-height: 1.05;
+    flex-shrink: 0;
+  }
+  .wordmark .wordmark-name {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-on-accent);
+    white-space: nowrap;
+  }
+  .wordmark .wordmark-tagline {
+    font-size: 11px;
+    font-weight: 400;
+    color: var(--text-on-accent);
+    opacity: 0.85;
+    margin-top: 4px;
+    white-space: nowrap;
   }
 
   nav.tabs {
@@ -382,6 +353,113 @@
     "Ing.-Büro für Hoch-, Tief- und Ingenieurbau",
     "ENERGIE DEZENT e.V. - Verein für dezentrale ENERGIENUTZUNG"
   ];
+  var SCHLAGWORT_OPTIONS = [
+    "1Q", "298", "2Q", "3D CAD", "3Q", "48V Batterie", "4mCAD", "4Q", "7DIM",
+    "Abgeschlossenheitsbescheinigung", "Abnahme", "Absturzsicherung", "Abwasser",
+    "Abweichungen von baurechtlichen Anforderungen", "ACAD", "ACAD Bemassung", "ACAD Gruppen",
+    "Administration", "Administrieren", "Agentenrolle", "Akquisition", "Aleo", "aliexpress",
+    "Alleinstellungsmerkmal", "Allianz HOLZ + ENERGIE", "Allnet Flat", "Alphatronic",
+    "Altersversorgung", "Aluminium", "Ampere", "Anforderungen", "Anfrage an Eliza",
+    "Angebote IB an …", "Anlagen zum Vorgang", "Anlagevermögen", "Anregungen", "Anrufen",
+    "Anschrift", "Antragsteller", "Antragsunterlagen", "AP-Anforderungen", "App",
+    "Apps (eigene)", "Arbeitshilfen", "Arbeitspakete", "Arbeitspapier", "Architektur", "Arte",
+    "Arztbesuch", "Attika", "AUFGABENSTELLUNG an ELIZA wg. Buchhaltung", "Auflagen",
+    "Aufstockung", "Auftrag an Eliza", "Auftraggeber / Kunde", "Auftragnehmer", "Ausführender",
+    "Ausführender (Bieter)", "Ausschreibungstexte", "AusweisAPP", "Autarkie", "Autarkieboiler",
+    "AuthCode", "AuthInfo (TRANSIT)", "Automatisierung", "Autorisierung", "Außendienst",
+    "Außentüren und -fenster", "Außenwand", "AVA", "Avarda", "AZ 1140-2024-432",
+    "AZ 125 0507 0999 BA 260463", "Azzurro", "BA 260463", "Badzellen", "Balkonkraftwerk",
+    "Bankverbindung(en)", "Bauantrag", "Bauart", "Bauart |7", "Baubeschreibung", "Bauelemente",
+    "Bauen-on-Demand", "Baugenehmigung", "Bauhaus", "Baukastenprinzip", "Bauleitung",
+    "Baurecht", "Bautagebuch", "Bauteile", "Bauzeitenplan", "e-Bay", "E-Mail-Accounts",
+    "E-Mail-Verkehr", "ebay", "eBook", "Eckdaten, Eckwerte", "Eckverbinder 90°",
+    "ECO-GeoSolarVento", "ECO-Solar Warmwasserinsel", "ECO-ThermoClayWall", "ED SolarKraftwerk",
+    "ego 14", "ego 15", "ego.IST", "EINFACHerBAUEN", "einfacherbauen.de", "Einkaufen",
+    "Einkaufen - Investition", "Einkommenssteuer", "Einkommensteuer-Programm",
+    "Einsparpotential", "Eisenstein", "Elekro", "Elektro", "Elektrosmog", "Elementaufbau",
+    "Elementbauweise", "Eliza", "Empfehlungen", "Energetische Betrachtungen", "Energie",
+    "ENERGIE DEZENT e.V.", "Energieausweis", "Energiemanagement", "Enkelkind tauglich",
+    "Entspannung", "Entwicklung", "EOS Eliza Operation System", "Ergebnisprotokoll",
+    "Ergänzungsunterlagen", "Erholung", "Erklärung", "Erläuterungsbericht",
+    "Erst digital - dann real", "Erwachter Geist", "Evernote", "Excel", "EÜR",
+    "Fabrikmäßige Produktion", "Facebook", "Facility Management (FM)", "Familie", "Farben",
+    "Fassade", "Fenster · Außentüren", "Fermacell", "Fertigung", "Fertigungstisch",
+    "Feuchtigkeit", "Figma", "Final", "Finanzamt", "Finanzierung", "Flachdach",
+    "Flächenermittlung", "Flächenheizungen", "FNR", "Folie", "Fona", "Formblatt", "Formel",
+    "Fragenkatalog", "Fraunhofer", "FRITZ!box", "FRITZ!dect", "Fritzbox", "Fundamentierung",
+    "Funktionsprüfung", "Fußbodenbelag", "Fußbodenheizung", "Fußbodenunterkonstruktion",
+    "Förderung", "g klasse", "GAEB", "Gebäudeenergiegesetz", "Gebäudeklasse 1",
+    "Gebäudetyp \"E\"", "GEG 2024", "Geheimhaltungserklärung", "Gelbdruck", "Geldverkehr",
+    "Gemini", "Gerüstarbeiten", "Geschossigkeit", "Gesprächsvorbereitung", "Gesundbau",
+    "Gesundheit", "Gewerke", "KI als Hilfsmittel für Solopreneurship", "KI-Kultur",
+    "KI-Mitarbeiter", "Kilometergeld", "Kimi", "Klarmobil", "Klarna", "Kleber",
+    "Kleintiersperre", "Kleinwagen", "Klimafreundlicher Neubau (KFN)", "Knowledge Base",
+    "Kollaborateur", "Kollaborateure", "Kollaboration", "Konfigurator", "Konsolidierung",
+    "Konstruktion", "Konstruktionsdokumente", "Kontenrahmen", "Kontoauszüge abrufen",
+    "Kontrollübersicht", "Konvektionsheizung", "Konzept erstellen", "Konzeptgespräch",
+    "Konzeptpapier", "Konzeptphase", "Kooperation", "Kopiervorlage", "Kosten & Budgetplanung",
+    "Kostenanteil WE2 (30%)", "Kostenarten", "Kostenermittlung", "kostenlos",
+    "Kostenvoranschlag", "Kreditkarte", "Kreislaufwirtschaft", "Krinner", "Kritik", "kSuite",
+    "Kundenforschung", "Kunstsstoffrohre", "Kurierdienste", "Kurzfassung", "Kurzschlusssicher",
+    "KYOCERA", "Köhler, Gert", "Körperpflege", "Küchenhexe", "Kühlung", "Kündigen", "L-EWT",
+    "Label, Markierungen, QS", "Landesbeirat Holz M-V", "Lastenheft", "Lastschriftmandat",
+    "Layer", "Lebenszyklusbetrachtung (LCA)", "LED", "Legende", "LEGO", "Lehm",
+    "Leistungsphasen", "Leistungsprüfung", "Leistungsverzeichnis", "Lesen", "Leukefeld",
+    "Lexware Buchhaltung plus", "Lieferadresse", "Lieferant", "Lieferprogramm", "LinkedIN",
+    "Links", "Lizenz", "Logistig", "Logistik", "Logo", "LOI", "LOIN", "Lounge",
+    "LP0 Konzeptphase", "LP1 Grundlagenermittlung", "LP4 Genehmigungsplanung",
+    "LP5 Ausführungsplanung", "Ludwigslust", "Luft Erdwärmetauscher", "Luftdichtsheitsebene",
+    "LWIR", "LWIR-Heizgewebe", "Lüftungsanlagen",
+    "Maler- und Lackierungsarbeiten · Beschichtungen", "Manuskript", "Marketing",
+    "Marktanpassungsfaktor",
+    "Massenermittlung (ÜBERHOLT !!! und ersetzt Mengenermittlung)", "Mastercard",
+    "Materialeigenschaften", "Materialien", "Mean Well", "Medizinischer Hintergrund",
+    "Privates", "Proben", "Produktbeschreibungen", "Produktbestandteile", "Projektbearbeitung",
+    "Projektbeteiligte", "Projektchronologie", "Projektdaten", "Projektkostenbarwertmethode",
+    "Prompt", "Prompt-Matrix", "Prompt-Referenz", "Prompt-Referenz: SMARTbauhaus-Konzept",
+    "Prompt-Struktur", "Proton", "Prototyp", "Provi", "Provider - 1BLU",
+    "Provider - ALL-INKL.COM", "Provider - Gmail.com", "Provider - Jimdo", "Provider - Manitu",
+    "Provider - Microsoft", "Provider - Telekom", "Provider - Vivaldi", "Provider - WEB.de",
+    "Präsentation", "Prüfanweisung", "Pseudonüm", "PUK", "PV", "PV-Freiflächenanlagen",
+    "Qualitätsicherung", "Qualitätssicherung", "Quantenthermodynamik", "Querdenken",
+    "Quick-Prompt", "Qwen", "R-Wert", "rabot.energy", "Radon", "Rahmen", "Rahmenanlage",
+    "Raketenöfen", "Randomisierte Fassade", "Raumausstattung", "Raummodule", "Raumprogramm",
+    "Raumtrennwände", "Reboheat", "Rebotherm Energy", "Rechnungswesen", "Recht & Normen",
+    "Rechtsgrundlagen", "Referenz", "Reflexion", "Regelwerke", "Regenrinne", "Regenwasser",
+    "Regenwassernutzung", "Rente", "Rente Christiane", "Rentenversicherung", "Rentnerdasein",
+    "Reparatur", "Repeater", "RGB", "Richtpauschale", "Rigole", "Rinnensystem",
+    "Risikomanagement", "RoBau 2023", "RoBau 2024", "Rohrleitungen", "Routine", "Routinen",
+    "Rufnummer", "Ruhner Land", "Rückbau", "Rückläufer", "Rückstandslos", "Sanitär",
+    "Sanitärregister", "Sanitärschächte", "Sanitärwände", "Sauna", "Sauna besuchen", "SBH-S",
+    "Scannen", "Schaltgerät", "Schlagwörter", "Schornstein", "Schotterspeicher",
+    "Schraubpfahlfundamente", "Schraubverbindungen", "Schreibstil", "Schwimmende Häuser",
+    "Selbstbauhaus", "Umwehrungen", "Unangenemes zuerst", "ungebundene Tragschicht",
+    "Unterlüftete Holzbodenplatte", "Unternehmensnachfolge", "Unternehmensregister", "v4heat",
+    "VDE-Verlag", "Veranstaltung", "Veranstaltungen", "Verarbeitungsrichtlinie", "verbinder",
+    "Verbinder & Kleineisenteile", "Verbindlichkeiten (langfristige)",
+    "Verbindlichkeiten (offene Posten)", "Verbrauchsmessung", "Verbundrohre", "Vergabe",
+    "Vergleich", "Vergleichsanalyse", "Vergütungsvereinbarung", "Verkauf", "Verkaufen",
+    "Verknüpfung", "Verkostung", "Verlegeplatte", "Vermerk", "Versickerungsanlage", "Version",
+    "Vertrag", "Vertragswesen", "Vertrauliches", "Vertreter", "Vertrieb",
+    "Veränderungen managen", "Viewer", "virtuell(e)r Mitarbeiter(in)", "Visualisierung",
+    "Vita", "Volt", "Vorbereitung", "Vorfertigigung", "Vorlagen", "Vorschlag", "Vortrag",
+    "Vorwandtechnik", "VZ allgemein", "VZ Basis-Ceck", "VZ Gebäude-Check", "VZ-Admin",
+    "Waldbaden", "Waldfeststellung", "Waldgrenze", "Waldumwandlung", "Wand", "Wandbeläge",
+    "Warmwasser", "WARUM", "Warum-Wie-Was", "WAS", "Watt", "WE1", "WE2", "WEB-7DIM",
+    "WEB-Site", "Webhosting", "Website", "Weihnachten 2025", "Weiterbildung",
+    "Weiterverwendbar", "Weizenbaum", "Weißdruck", "Wellenlänge", "Wellness", "Welt retten",
+    "WEMAG", "weniger ist mehr", "Werbung", "Werkstattfertigung", "Wertstoff",
+    "Wertstofflager", "Wettbewerb", "Widerstandswerte", "WIE", "Wiederholung",
+    "Wiederverwendbar", "Wiedervorlage", "Wiki", "Wintergarten", "Wirkungspotential ermitteln",
+    "Wissensspeicher", "WLAN", "Wohnbox", "Wohneinheit 0 · Hausanschluss Breitband",
+    "Wohneinheit 1 · Haupthaus", "Wohneinheit 2", "Wohnfläche", "Wohnfläche nach WoFIV",
+    "Workflow", "Workflow AI-Engineering", "Workshop", "Wortschatz", "WP", "Wärme",
+    "Wärme- und Kältedämmung", "Wärmedämmung", "Wärmeerzeugungsanlagen", "Wärmepumpe",
+    "wärmepumpen", "Wärmeschutznachweis", "Wäscherutsche", "Wäscheschleuse",
+    "Zeichnen im Hochbau", "Zelt", "zerstörungsfrei", "Zertifikat", "Ziel",
+    "Zirkuläres Bauen", "Zugangsdaten", "Zukunft gestalten", "Zukunft pur",
+    "zur Post bringen", "ÖBVI", "Öffentlichkeitsarbeit", "Ökologischer Fußabdruck"
+  ];
 
   function uid() {
     if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
@@ -536,13 +614,16 @@
   function render() {
     var u = currentUser();
     var html = "";
-    html += '<div class="shell">';
-
-    html += '<div class="logo-tile"><span class="logo-name">Gert Köhler</span><span class="logo-tagline">… kein Ding ohne Ing</span></div>';
 
     html += '<header class="app-header">';
-    html += '<h1>Task- und Feedback-Modul &middot; Pull-Projekt</h1>';
+    html += '<div class="header-left">';
+    html += '<h1>Task- und Feedback-Modul &middot; Pull-Project</h1>';
     html += '<div class="header-row">';
+    html += '<select class="org-select" id="orgContext" onchange="CbyF.setOrgContext(this.value)">';
+    ORG_CONTEXT_OPTIONS.forEach(function (opt) {
+      html += '<option value="' + escapeHtml(opt) + '"' + (ui.orgContext === opt ? " selected" : "") + '>' + escapeHtml(opt) + '</option>';
+    });
+    html += '</select>';
     html += '<div class="user-switch">';
     html += '<select id="userSwitch" onchange="CbyF.switchUser(this.value)">';
     data.users.forEach(function (usr) {
@@ -550,12 +631,9 @@
     });
     html += '</select>';
     html += '</div>';
-    html += '<select class="org-select" id="orgContext" onchange="CbyF.setOrgContext(this.value)">';
-    ORG_CONTEXT_OPTIONS.forEach(function (opt) {
-      html += '<option value="' + escapeHtml(opt) + '"' + (ui.orgContext === opt ? " selected" : "") + '>' + escapeHtml(opt) + '</option>';
-    });
-    html += '</select>';
     html += '</div>';
+    html += '</div>';
+    html += '<div class="wordmark"><span class="wordmark-name">Gert Köhler</span><span class="wordmark-tagline">… kein Ding ohne Ing.</span></div>';
     html += '</header>';
 
     html += '<nav class="tabs">';
@@ -569,8 +647,6 @@
     else if (ui.tab === "projekte") html += renderProjectsView();
     else if (ui.tab === "verwaltung" && isPL()) html += renderAdminView();
     html += '</main>';
-
-    html += '</div>';
 
     if (ui.modal) html += renderModal();
 
@@ -846,7 +922,10 @@
     html += '</div>';
 
     html += '<div class="row2">';
-    html += '<div class="field"><label>Schlagwörter</label><input type="text" id="f_keywords" value="' + escapeHtml(t.keywords || "") + '" placeholder="Komma-getrennt"></div>';
+    html += '<div class="field"><label>Schlagwörter</label><input type="text" id="f_keywords" list="schlagwortListe" value="' + escapeHtml(t.keywords || "") + '" placeholder="Komma-getrennt, Vorschläge per Eingabe"></div>';
+    html += '<datalist id="schlagwortListe">';
+    SCHLAGWORT_OPTIONS.forEach(function (sw) { html += '<option value="' + escapeHtml(sw) + '">'; });
+    html += '</datalist>';
     html += '<div class="field"><label>Handlungsfelder</label><select id="f_action_field"><option value="">– keine Auswahl –</option>';
     ACTION_FIELD_OPTIONS.forEach(function (af) {
       html += '<option value="' + escapeHtml(af) + '"' + (t.actionField === af ? " selected" : "") + '>' + escapeHtml(af) + '</option>';
