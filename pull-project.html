@@ -96,6 +96,36 @@
     font-weight: 600;
   }
 
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+  .logo-mark {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    line-height: 1.02;
+    padding-left: 16px;
+    border-left: 1px solid rgba(255,255,255,0.35);
+  }
+  .logo-mark .logo-name {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--text-on-accent);
+    white-space: nowrap;
+  }
+  .logo-mark .logo-tagline {
+    font-size: 10px;
+    font-weight: 400;
+    color: var(--text-on-accent);
+    opacity: 0.85;
+    margin-top: 3px;
+    white-space: nowrap;
+  }
+
   nav.tabs {
     background: var(--surface-alt);
     display: flex;
@@ -305,7 +335,11 @@
     "LP 0 Projektvorbereitung", "LP 1 Grundlagenermittlung", "LP 2 Vorplanung",
     "LP 3 Entwurfsplanung", "LP 4 Genehmigungsplanung", "LP 5 Ausführungs- bzw. Werkplanug",
     "LP 6 Vorbereitung der Vergabe", "LP 7 Mitwirkung bei der Vergabe", "LP 8 Bauoberleitung",
-    "LP 9 Objektbetreuung", "A", "B"
+    "LP 9 Objektbetreuung",
+    "A Organisation, Information, Koordination und Dokumentation",
+    "B Qualitäten und Quantitäten",
+    "C Kosten · Finanzierung · Bankverbindungen",
+    "D Termine, Kapazitäten und Logistik"
   ];
 
   function uid() {
@@ -462,6 +496,7 @@
     var html = "";
     html += '<header class="app-header">';
     html += '<div><h1>Pull-Project</h1><div class="sub">Aufgaben-Pool im Pull-Prinzip &middot; Ingenieurbüro Köhler</div></div>';
+    html += '<div class="header-right">';
     html += '<div class="user-switch">Angemeldet als';
     html += '<select id="userSwitch" onchange="CbyF.switchUser(this.value)">';
     data.users.forEach(function (usr) {
@@ -469,6 +504,8 @@
     });
     html += '</select>';
     html += '<span class="role-badge">' + (u.role === "PL" ? "Projektleiter" : "Mitarbeiter") + '</span>';
+    html += '</div>';
+    html += '<div class="logo-mark"><span class="logo-name">Gert Köhler</span><span class="logo-tagline">… kein Ding ohne Ing</span></div>';
     html += '</div></header>';
 
     html += '<nav class="tabs">';
