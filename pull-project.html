@@ -575,16 +575,42 @@
     });
   }
 
+  function defaultTasks(projects, users) {
+    var projectIds = projects.slice(0, 5).map(function (p) { return p.id; });
+    var creators = users.slice(0, 5);
+    var tasks = [];
+    for (var i = 0; i < 10; i++) {
+      var creator = creators[i % 5];
+      tasks.push({
+        id: uid(), title: "Testaufgabe " + (i + 1), description: "XXX",
+        projectId: projectIds[i % 5], deadline: null, priority: 2, status: "offen",
+        assigneeId: null, progress: 0,
+        category: "", knowledgeBase: "", keywords: "4Q", childTaskId: null,
+        location: "", url: "", estimatedEffort: null, contactId: null,
+        actionField: "LP 3 Entwurfsplanung",
+        notes: [], history: [{ ts: Date.now(), text: "Angelegt", author: creator.name }]
+      });
+    }
+    for (var j = 0; j < 3; j++) {
+      var puller = creators[j];
+      tasks[j].status = "in_bearbeitung";
+      tasks[j].assigneeId = puller.id;
+      tasks[j].history.push({ ts: Date.now(), text: "Aufgabe geholt von " + puller.name, author: puller.name });
+    }
+    return tasks;
+  }
+
   function seedData() {
     var users = defaultUsers().map(function (u) {
       return { id: uid(), seedKey: u.seedKey, name: u.name, funktion: u.funktion, role: u.role };
     });
     var gert = users.filter(function (u) { return u.seedKey === "koehler-gert"; })[0];
+    var projects = defaultProjects();
     return {
       currentUserId: gert.id,
       users: users,
-      projects: defaultProjects(),
-      tasks: []
+      projects: projects,
+      tasks: defaultTasks(projects, users)
     };
   }
 
