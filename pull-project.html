@@ -692,6 +692,11 @@
     var u = data.users.find(function (x) { return x.id === id; });
     return u ? u.name : "–";
   }
+  function assigneeDisplay(t) {
+    if (t.assigneeId) return userName(t.assigneeId);
+    if (t.contactId) return userName(t.contactId);
+    return "– offen –";
+  }
   function projectName(id) {
     var p = data.projects.find(function (x) { return x.id === id; });
     return p ? p.name : "– kein Projekt –";
@@ -865,7 +870,7 @@
     if (overdue) html += '<span class="badge overdue-badge">Überfällig</span>';
     html += '<span class="badge">' + escapeHtml(projectName(t.projectId)) + '</span>';
     html += '</div>';
-    html += '<div class="meta">Frist: <span class="deadline' + (overdue ? " overdue" : "") + '">' + formatDate(t.deadline) + '</span> &middot; Bearbeiter: ' + escapeHtml(t.assigneeId ? userName(t.assigneeId) : "– offen –") + '</div>';
+    html += '<div class="meta">Frist: <span class="deadline' + (overdue ? " overdue" : "") + '">' + formatDate(t.deadline) + '</span> &middot; Bearbeiter: ' + escapeHtml(assigneeDisplay(t)) + '</div>';
     html += '<div class="progress-outer"><div class="progress-inner" style="width:' + t.progress + '%"></div></div>';
     html += '<div class="meta mono">' + formatNumber(t.progress) + ' %</div>';
 
@@ -1089,7 +1094,7 @@
     html += '</div>';
     html += '<p>' + escapeHtml(t.description || "– keine Beschreibung –") + '</p>';
     html += '<div class="meta">Frist: <span class="mono' + (isOverdue(t) ? " deadline overdue" : "") + '">' + formatDate(t.deadline) + '</span></div>';
-    html += '<div class="meta">Bearbeiter: ' + escapeHtml(t.assigneeId ? userName(t.assigneeId) : "– offen –") + '</div>';
+    html += '<div class="meta">Bearbeiter: ' + escapeHtml(assigneeDisplay(t)) + '</div>';
     if (t.category) html += '<div class="meta">Kategorie: ' + escapeHtml(t.category) + '</div>';
     if (t.knowledgeBase) html += '<div class="meta">Knowledge Base: ' + escapeHtml(t.knowledgeBase) + '</div>';
     if (t.keywords) html += '<div class="meta">Schlagwörter: ' + escapeHtml(t.keywords) + '</div>';
