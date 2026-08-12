@@ -290,6 +290,7 @@
     font-family: inherit; font-size: 14px; background: var(--surface); color: var(--text);
   }
   .field textarea { resize: vertical; min-height: 60px; }
+  .field-hint { font-size: 11px; color: var(--text); opacity: 0.65; margin-top: 3px; }
   .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
   .modal .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
@@ -955,7 +956,7 @@
     var t = editing ? data.tasks.find(function (x) { return x.id === m.taskId; }) : {
       title: "", description: "", projectId: "", deadline: "", priority: 2,
       knowledgeBase: "", category: "", keywords: "", childTaskId: "",
-      location: "", url: "", estimatedEffort: "", contacts: "", actionField: ""
+      location: "", url: "", estimatedEffort: "", contactIds: [], actionField: ""
     };
     var html = '<h2>' + (editing ? "Aufgabe bearbeiten" : "Neue Aufgabe") + '</h2>';
     html += '<div class="field"><label>Titel *</label><input type="text" id="f_title" value="' + escapeHtml(t.title) + '"></div>';
@@ -972,6 +973,13 @@
     });
     html += '</select></div>';
     html += '</div>';
+
+    html += '<div class="field"><label>Kontakte</label><select id="f_contacts" multiple size="4">';
+    data.users.forEach(function (u) {
+      html += '<option value="' + u.id + '"' + ((t.contactIds || []).indexOf(u.id) !== -1 ? " selected" : "") + '>' + escapeHtml(u.name) + '</option>';
+    });
+    html += '</select><div class="field-hint">Mehrfachauswahl mit Strg/Cmd + Klick</div></div>';
+
     var deadlineParts = (t.deadline || "").split("T");
     var deadlineDateVal = deadlineParts[0] || "";
     var deadlineTimeVal = deadlineParts[1] || "08:00";
@@ -1018,8 +1026,6 @@
     html += '<div class="field"><label>Geschätzter Aufwand (Std.)</label><input type="number" id="f_effort" min="0" step="0.5" value="' + (t.estimatedEffort === null || t.estimatedEffort === undefined ? "" : t.estimatedEffort) + '"></div>';
     html += '</div>';
 
-    html += '<div class="field"><label>Kontakte</label><input type="text" id="f_contacts" value="' + escapeHtml(t.contacts || "") + '" placeholder="Komma-getrennt"></div>';
-
     html += '<div class="modal-actions">';
     html += '<button class="btn" onclick="CbyF.closeModal()">Abbrechen</button>';
     html += '<button class="btn btn-primary" onclick="CbyF.saveTaskForm(' + (editing ? "'" + t.id + "'" : "null") + ')">Speichern</button>';
@@ -1047,7 +1053,10 @@
     if (t.location) html += '<div class="meta">Ort: ' + escapeHtml(t.location) + ' &middot; <a href="' + mapsRouteUrl(t.location) + '" target="_blank" rel="noopener">Route in Google Maps öffnen</a></div>';
     if (t.url) html += '<div class="meta">URL: <a href="' + escapeHtml(normalizeUrl(t.url)) + '" target="_blank" rel="noopener">' + escapeHtml(t.url) + '</a></div>';
     if (t.estimatedEffort !== null && t.estimatedEffort !== undefined && t.estimatedEffort !== "") html += '<div class="meta">Geschätzter Aufwand: <span class="mono">' + formatNumber(t.estimatedEffort) + '</span> Std.</div>';
-    if (t.contacts) html += '<div class="meta">Kontakte: ' + escapeHtml(t.contacts) + '</div>';
+    if (t.contactIds && t.contactIds.length) {
+      var contactNames = t.contactIds.map(function (id) { return userName(id); }).join(", ");
+      html += '<div class="meta">Kontakte: ' + escapeHtml(contactNames) + '</div>';
+    }
 
     if (t.assigneeId === currentUser().id && t.status === "in_bearbeitung") {
       html += '<div class="field"><label>Fortschritt: <span id="progressVal" class="mono">' + t.progress + '</span> %</label>';
@@ -1172,13 +1181,13 @@
       var url = document.getElementById("f_url").value.trim();
       var effortRaw = document.getElementById("f_effort").value;
       var estimatedEffort = effortRaw === "" ? null : parseFloat(effortRaw);
-      var contacts = document.getElementById("f_contacts").value.trim();
+      var contactIds = Array.prototype.slice.call(document.getElementById("f_contacts").selectedOptions).map(function (o) { return o.value; });
 
       if (taskId) {
         var t = data.tasks.find(function (x) { return x.id === taskId; });
         t.title = title; t.description = desc; t.projectId = projectId; t.priority = priority; t.deadline = deadline;
         t.category = category; t.knowledgeBase = knowledgeBase; t.keywords = keywords; t.childTaskId = childTaskId;
-        t.location = location; t.url = url; t.estimatedEffort = estimatedEffort; t.contacts = contacts;
+        t.location = location; t.url = url; t.estimatedEffort = estimatedEffort; t.contactIds = contactIds;
         t.actionField = actionField;
         addHistory(t, "Aufgabe bearbeitet");
       } else {
@@ -1186,7 +1195,7 @@
           id: uid(), title: title, description: desc, projectId: projectId, deadline: deadline,
           priority: priority, status: "offen", assigneeId: null, progress: 0,
           category: category, knowledgeBase: knowledgeBase, keywords: keywords, childTaskId: childTaskId,
-          location: location, url: url, estimatedEffort: estimatedEffort, contacts: contacts,
+          location: location, url: url, estimatedEffort: estimatedEffort, contactIds: contactIds,
           actionField: actionField,
           notes: [], history: [{ ts: Date.now(), text: "Angelegt", author: currentUser().name }]
         });
